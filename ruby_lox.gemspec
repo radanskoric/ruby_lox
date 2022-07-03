@@ -31,6 +31,11 @@ Gem::Specification.new do |spec|
   end
   spec.require_paths = ["lib"]
 
+  spec.add_development_dependency "rspec-core", "~> 3.11"
+  spec.add_development_dependency "rspec-expectations", "~> 3.11"
+  spec.add_development_dependency "rspec-mocks", "~> 3.11"
+  spec.add_development_dependency "debug", ">= 1.0.0"
+
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
 
