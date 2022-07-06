@@ -19,7 +19,7 @@ module RubyLox
       eof
     ].freeze
 
-    attr_reader :type, :line, :literal
+    attr_reader :type, :line, :literal, :lexeme
 
     # @param type [Symbol] Type of token
     # @param lexeme [String] The actual snippet of course matching the token

@@ -12,6 +12,9 @@
 # the additional setup, and require it from the spec files that actually need
 # it.
 
+root_dir = File.expand_path("..", __dir__)
+$LOAD_PATH.unshift(root_dir) unless $LOAD_PATH.include?(root_dir)
+
 require "ruby_lox"
 require "debug"
 
