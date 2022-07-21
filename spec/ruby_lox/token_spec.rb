@@ -26,4 +26,26 @@ RSpec.describe RubyLox::Token do
       expect(str).to eq "number 42 42"
     end
   end
+
+  describe "#==" do
+    subject { token == other }
+
+    context "when other is identical by type and literal" do
+      let(:other) { described_class.new(type, nil, literal, nil) }
+
+      it { is_expected.to eq(true) }
+    end
+
+    context "when other is different by type" do
+      let(:other) { described_class.new(:string, lexeme, literal, line) }
+
+      it { is_expected.to eq(false) }
+    end
+
+    context "when other is different by literal" do
+      let(:other) { described_class.new(type, lexeme, 100, line) }
+
+      it { is_expected.to eq(false) }
+    end
+  end
 end

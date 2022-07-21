@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 require "spec_helper"
 
+require "lib/ruby_lox/scanner"
+
 RSpec.describe RubyLox::Scanner do
   subject(:scanner) { described_class.new(source) }
 

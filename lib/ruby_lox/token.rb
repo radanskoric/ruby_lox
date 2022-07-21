@@ -37,5 +37,9 @@ module RubyLox
     def to_s
       "#{@type} #{@lexeme} #{@literal}"
     end
+
+    def ==(other)
+      self.type == other.type && self.literal == other.literal
+    end
   end
 end
