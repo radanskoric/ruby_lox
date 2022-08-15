@@ -5,7 +5,9 @@ require "bundler/setup"
 require "ruby_lox"
 
 def run(source)
-  RubyLox::Runner.new.run(source)
+  output = RubyLox::Runner.new.run(source).to_s
+  output.delete_suffix!(".0") if output.end_with?(".0")
+  puts output
 end
 
 def runFile(path)

@@ -3,13 +3,14 @@
 require_relative "ruby_lox/version"
 require_relative "ruby_lox/scanner"
 require_relative "ruby_lox/parser"
-require_relative "ruby_lox/ast_printer"
+require_relative "ruby_lox/interpreter"
 
 module RubyLox
   class Error < StandardError; end
 
   class Runner
     def initialize
+      @interpreter = Interpreter.new
     end
 
     def run(source)
@@ -29,7 +30,11 @@ module RubyLox
         return
       end
 
-      puts ast.accept(AstPrinter.new)
+      begin
+        ast.accept(@interpreter)
+      rescue Interpreter::LoxRuntimeError => e
+        puts e
+      end
     end
   end
 end
