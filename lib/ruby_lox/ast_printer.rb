@@ -18,5 +18,25 @@ module RubyLox
     def visitUnary(unary)
       "(#{unary.operator.lexeme} #{unary.right.accept(self)})"
     end
+
+    def visitVariable(variable)
+      variable.name || "undefined"
+    end
+
+    def visitStmtExpression(stmt)
+      "(expr #{stmt.expression.accept(self)})"
+    end
+
+    def visitStmtPrint(stmt)
+      "(print #{stmt.expression.accept(self)})"
+    end
+
+    def visitStmtVarDecl(stmt)
+      if stmt.initializer
+        "(var #{stmt.name.lexeme} #{stmt.initializer.accept(self)})"
+      else
+        "(var #{stmt.name.lexeme})"
+      end
+    end
   end
 end

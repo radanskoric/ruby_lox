@@ -4,10 +4,9 @@
 require "bundler/setup"
 require "ruby_lox"
 
-def run(source)
-  output = RubyLox::Runner.new.run(source).to_s
-  output.delete_suffix!(".0") if output.end_with?(".0")
-  puts output
+def run(source, runner = RubyLox::Runner.new)
+  runner.run(source).to_s
+  puts
 end
 
 def runFile(path)
@@ -15,9 +14,10 @@ def runFile(path)
 end
 
 def runPrompt
+  runner = RubyLox::Runner.new
   print "> "
   while line = gets
-    run line
+    run line, runner
     print "> "
   end
 end

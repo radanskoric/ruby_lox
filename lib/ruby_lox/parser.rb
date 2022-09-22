@@ -1,10 +1,17 @@
 # frozen_string_literal: true
 require_relative "token"
 require_relative "expressions"
+require_relative "statements"
 
 module RubyLox
   # Parse the lox grammar, defines as:
   #
+  # program        → declaration* EOF ;
+  # declaration    → varDecl | statement;
+  # varDecl        → "var" IDENTIFIER ("=" expression)? ";" ;
+  # statement      → exprStmt | printStmt ;
+  # exprStmt       → expression ";" ;
+  # printStmt      → "print" expression ";" ;
   # expression     → equality ;
   # equality       → comparison ( ( "!=" | "==" ) comparison )* ;
   # comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
@@ -13,7 +20,7 @@ module RubyLox
   # unary          → ( "!" | "-" ) unary
   #                | primary ;
   # primary        → NUMBER | STRING | "true" | "false" | "nil"
-  #                | "(" expression ")" ;
+  #                | "(" expression ")" | IDENTIFIER ;
   #
   class Parser
     class Error < StandardError
@@ -26,6 +33,8 @@ module RubyLox
         "Error on line #{@token.line}: #{@message}"
       end
     end
+
+    STATEMENT_START_TOKENS = %i[class for fun if print return var while].freeze
 
     attr_reader :errors
 
@@ -42,7 +51,12 @@ module RubyLox
 
     # @return [RubyLox::Expressions::*] An object representing the parsed AST (Abstract Syntax Tree).
     def parse
-      expression
+      statements = []
+      while !(is_at_end? || match(:eof))
+        statements << declaration
+      end
+
+      statements.compact
     rescue Error => e
       @errors << e
       nil
@@ -51,6 +65,47 @@ module RubyLox
     private
 
     ### Grammar methods ###
+
+    def declaration
+      begin
+        return var_declaration if match(:var)
+        statement
+      rescue Error => e
+        @errors << e
+        synchronize
+        nil
+      end
+    end
+
+    def var_declaration
+      name = consume(:identifier, "Expect variable name.")
+
+      initializer = nil
+      if match(:equal)
+        initializer = expression
+      end
+
+      consume(:semicolon, "Expect ';' after variable declaration.")
+      Statements::VarDecl.new(name, initializer)
+    end
+
+    def statement
+      return printStatement if match(:print)
+
+      expressionStatement
+    end
+
+    def printStatement
+      expr = expression
+      consume(:semicolon, "Expect ';' after expression.")
+      Statements::Print.new(expr)
+    end
+
+    def expressionStatement
+      expr = expression
+      consume(:semicolon, "Expect ';' after expression.")
+      Statements::Expression.new(expr)
+    end
 
     def expression
       equality
@@ -101,6 +156,10 @@ module RubyLox
         return Expressions::Literal.new(previous.literal)
       end
 
+      if match(:identifier)
+        return Expressions::Variable.new(previous.lexeme)
+      end
+
       if match(:left_paren)
         expr = expression
         consume(:right_paren, "Expect ')' after expression.")
@@ -114,7 +173,7 @@ module RubyLox
 
     # @param token_types [Array<Symbol>] list of token types looking for
     def match(*token_types)
-      if token_types.any? { |tt| check(tt) }
+      if check(*token_types)
         advance
         true
       else
@@ -123,9 +182,9 @@ module RubyLox
     end
 
     # @param token_type [Symbol]
-    def check(token_type)
+    def check(*token_types)
       return false if is_at_end?
-      peek.type == token_type
+      token_types.include?(peek.type)
     end
 
     def peek
@@ -150,6 +209,16 @@ module RubyLox
         advance
       else
         raise Error.new(advance, error_message)
+      end
+    end
+
+    def synchronize
+      advance
+      while !is_at_end?
+        return if previous.type == :semicolon
+        return if STATEMENT_START_TOKENS.include?(peek.type)
+
+        advance
       end
     end
   end

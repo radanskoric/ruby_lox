@@ -1,18 +1,31 @@
 # frozen_string_literal: true
 
+require_relative "errors"
+require_relative "environment"
+
 module RubyLox
   class Interpreter
     NUMERIC_ONLY_BINARY_OPERATIONS = %i[minus slash star greater greater_equal less less_equal].freeze
 
-    class LoxRuntimeError < RuntimeError
+    class SemanticError < LoxRuntimeError
       def initialize(token, message)
+        super(message)
         @token = token
-        @message = message
       end
 
       def to_s
         "Runtime error executing \"#{@token.lexeme}\" on line #{@token.line}: #{@message}"
       end
+    end
+
+    def initialize(out = STDOUT)
+      @out = out
+      @globals = Environment.new
+    end
+
+    def interpret(program)
+      program.each { |stmt| stmt.accept(self) }
+      nil
     end
 
     def visitBinary(binary)
@@ -60,6 +73,28 @@ module RubyLox
       end
     end
 
+    def visitVariable(variable)
+      @globals.get(variable.name)
+    end
+
+    def visitStmtExpression(stmt)
+      evaluate(stmt.expression)
+      nil
+    end
+
+    def visitStmtPrint(stmt)
+      output = evaluate(stmt.expression).to_s
+      output.delete_suffix!(".0") if output.end_with?(".0")
+      @out.print output
+      nil
+    end
+
+    def visitStmtVarDecl(stmt)
+      value = stmt.initializer ? evaluate(stmt.initializer) : nil
+      @globals.define(stmt.name.lexeme, value)
+      nil
+    end
+
     private
 
     def evaluate(expr)
@@ -68,18 +103,18 @@ module RubyLox
 
     def checkNumberOperand(token, value)
       return if value.is_a? Numeric
-      fail LoxRuntimeError.new(token, "Operand must be a number.")
+      fail SemanticError.new(token, "Operand must be a number.")
     end
 
     def checkNumberOperands(token, left, right)
       return if left.is_a?(Numeric) && right.is_a?(Numeric)
-      fail LoxRuntimeError.new(token, "Operands must be numbers.")
+      fail SemanticError.new(token, "Operands must be numbers.")
     end
 
     def checkAddableOperands(token, left, right)
       return if (left.is_a?(Numeric) && right.is_a?(Numeric))
       return if (left.is_a?(String) && right.is_a?(String))
-      fail LoxRuntimeError.new(token, "Operands must be two numbers or two strings.")
+      fail SemanticError.new(token, "Operands must be two numbers or two strings.")
     end
   end
 end

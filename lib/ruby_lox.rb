@@ -31,8 +31,8 @@ module RubyLox
       end
 
       begin
-        ast.accept(@interpreter)
-      rescue Interpreter::LoxRuntimeError => e
+        @interpreter.interpret(ast)
+      rescue LoxRuntimeError => e
         puts e
       end
     end
