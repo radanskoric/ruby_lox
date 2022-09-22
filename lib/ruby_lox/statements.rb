@@ -7,8 +7,9 @@ module RubyLox
     Expression = Struct.new(:expression)
     Print = Struct.new(:expression)
     VarDecl = Struct.new(:name, :initializer)
+    Block = Struct.new(:statements)
 
-    [Expression, Print, VarDecl].each do |statement_class|
+    [Expression, Print, VarDecl, Block].each do |statement_class|
       klass_name = statement_class.name.split(":").last
       statement_class.class_eval <<~RUBY
         def accept(visitor)

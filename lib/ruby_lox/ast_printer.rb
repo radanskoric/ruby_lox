@@ -38,5 +38,13 @@ module RubyLox
         "(var #{stmt.name.lexeme})"
       end
     end
+
+    def visitAssign(expr)
+      "(= #{expr.name} #{expr.value.accept(self)})"
+    end
+
+    def visitStmtBlock(stmt)
+      "{ #{stmt.statements.map { |stmt| stmt.accept(self) }.join(",")} }"
+    end
   end
 end

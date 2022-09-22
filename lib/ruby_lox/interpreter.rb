@@ -20,7 +20,7 @@ module RubyLox
 
     def initialize(out = STDOUT)
       @out = out
-      @globals = Environment.new
+      @environment = Environment.new
     end
 
     def interpret(program)
@@ -74,7 +74,7 @@ module RubyLox
     end
 
     def visitVariable(variable)
-      @globals.get(variable.name)
+      @environment.get(variable.name)
     end
 
     def visitStmtExpression(stmt)
@@ -85,13 +85,24 @@ module RubyLox
     def visitStmtPrint(stmt)
       output = evaluate(stmt.expression).to_s
       output.delete_suffix!(".0") if output.end_with?(".0")
-      @out.print output
+      @out.puts output
       nil
     end
 
     def visitStmtVarDecl(stmt)
       value = stmt.initializer ? evaluate(stmt.initializer) : nil
-      @globals.define(stmt.name.lexeme, value)
+      @environment.define(stmt.name.lexeme, value)
+      nil
+    end
+
+    def visitAssign(expr)
+      value = evaluate(expr.value)
+      @environment.assign(expr.name, value)
+      nil
+    end
+
+    def visitStmtBlock(block)
+      executeBlock(block.statements, Environment.new(@environment))
       nil
     end
 
@@ -99,6 +110,16 @@ module RubyLox
 
     def evaluate(expr)
       expr.accept(self)
+    end
+
+    def executeBlock(statements, environment)
+      begin
+        previous = @environment
+        @environment = environment
+        statements.each { |stmt| stmt.accept(self) }
+      ensure
+        @environment = previous
+      end
     end
 
     def checkNumberOperand(token, value)

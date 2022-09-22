@@ -18,7 +18,7 @@ RSpec.describe RubyLox::Interpreter do
   let(:tokens) { RubyLox::Scanner.new(source).scan_tokens }
 
   context "with parsed valid source" do
-    subject(:output) { result; out.string }
+    subject(:output) { result; out.string.chop }
 
     context "with a calculation" do
       let(:source) { "print -123 * (35.67 + 10);" }
@@ -42,7 +42,7 @@ RSpec.describe RubyLox::Interpreter do
       it { is_expected.to eq "foobar" }
     end
 
-    context "with global variables assignment" do
+    context "with global variables declaration" do
       let(:source) do
         <<~CODE
           var a = 1;
@@ -53,6 +53,37 @@ RSpec.describe RubyLox::Interpreter do
 
       it "evaluates and uses values of variables" do
         expect(output).to eq "3"
+      end
+    end
+
+    context "with global variables assignment" do
+      let(:source) do
+        <<~CODE
+          var a = 1;
+          a = 2;
+          print a;
+        CODE
+      end
+
+      it "updates the variable value" do
+        expect(output).to eq "2"
+      end
+    end
+
+    context "with variables in blocks" do
+      let(:source) do
+        <<~CODE
+          var a = 1;
+          {
+            var a = 2;
+            print a;
+          }
+          print a;
+        CODE
+      end
+
+      it "implements scoping and shadowing " do
+        expect(output).to eq "2\n1"
       end
     end
   end

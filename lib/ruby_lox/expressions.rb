@@ -9,8 +9,9 @@ module RubyLox
     Grouping = Struct.new(:expression)
     Literal = Struct.new(:value)
     Variable = Struct.new(:name)
+    Assign = Struct.new(:name, :value)
 
-    [Binary, Unary, Grouping, Literal, Variable].each do |expression_class|
+    [Binary, Unary, Grouping, Literal, Variable, Assign].each do |expression_class|
       klass_name = expression_class.name.split(":").last
       expression_class.class_eval <<~RUBY
         def accept(visitor)

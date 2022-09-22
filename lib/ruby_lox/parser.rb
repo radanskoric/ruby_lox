@@ -9,10 +9,13 @@ module RubyLox
   # program        → declaration* EOF ;
   # declaration    → varDecl | statement;
   # varDecl        → "var" IDENTIFIER ("=" expression)? ";" ;
-  # statement      → exprStmt | printStmt ;
+  # statement      → exprStmt | printStmt | block ;
   # exprStmt       → expression ";" ;
   # printStmt      → "print" expression ";" ;
-  # expression     → equality ;
+  # block          → "{" declaration* "}" ;
+  # expression     → assignment ;
+  # assignment     → IDENTIFIER "=" assignment
+  #                | equality ;
   # equality       → comparison ( ( "!=" | "==" ) comparison )* ;
   # comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
   # term           → factor ( ( "-" | "+" ) factor )* ;
@@ -91,6 +94,7 @@ module RubyLox
 
     def statement
       return printStatement if match(:print)
+      return block if match(:left_brace)
 
       expressionStatement
     end
@@ -101,6 +105,18 @@ module RubyLox
       Statements::Print.new(expr)
     end
 
+    def block
+      statements = []
+
+      while !check(:right_brace) && !is_at_end?
+        statements << declaration
+      end
+
+      consume(:right_brace, "Expect '}' after block.")
+
+      Statements::Block.new(statements)
+    end
+
     def expressionStatement
       expr = expression
       consume(:semicolon, "Expect ';' after expression.")
@@ -108,7 +124,24 @@ module RubyLox
     end
 
     def expression
-      equality
+      assignment
+    end
+
+    def assignment
+      expr = equality
+
+      if match(:equal)
+        equals = previous
+        value = assignment
+
+        if expr.is_a?(Expressions::Variable)
+          return Expressions::Assign.new(expr.name, value)
+        end
+
+        fail Error.new(equals, "Invalid assignment target.")
+      end
+
+      expr
     end
 
     def equality
