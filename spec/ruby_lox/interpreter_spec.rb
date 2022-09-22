@@ -86,6 +86,26 @@ RSpec.describe RubyLox::Interpreter do
         expect(output).to eq "2\n1"
       end
     end
+
+    context "with an if statement" do
+      let(:source) { "if (#{condition}) print \"yes\"; else print \"no\";" }
+
+      context "that has a true condition" do
+        let(:condition) { "2+2 == 4" }
+
+        it "executes the then branch" do
+          expect(output).to eq "yes"
+        end
+      end
+
+      context "that has a false condition" do
+        let(:condition) { "2+2 == 4+4" }
+
+        it "executes the then branch" do
+          expect(output).to eq "no"
+        end
+      end
+    end
   end
 
   context "with invalid source" do

@@ -46,5 +46,13 @@ module RubyLox
     def visitStmtBlock(stmt)
       "{ #{stmt.statements.map { |stmt| stmt.accept(self) }.join(",")} }"
     end
+
+    def visitStmtIf(stmt)
+      if stmt.elseBranch
+        "(if #{stmt.condition.accept(self)} #{stmt.thenBranch.accept(self)} #{stmt.elseBranch.accept(self)})"
+      else
+        "(if #{stmt.condition.accept(self)} #{stmt.thenBranch.accept(self)})"
+      end
+    end
   end
 end

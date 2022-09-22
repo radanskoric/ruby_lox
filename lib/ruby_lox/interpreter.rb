@@ -106,6 +106,14 @@ module RubyLox
       nil
     end
 
+    def visitStmtIf(stmt)
+      if evaluate(stmt.condition)
+        evaluate(stmt.thenBranch)
+      else
+        evaluate(stmt.elseBranch)
+      end
+    end
+
     private
 
     def evaluate(expr)

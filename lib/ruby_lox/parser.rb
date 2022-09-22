@@ -9,11 +9,13 @@ module RubyLox
   # program        → declaration* EOF ;
   # declaration    → varDecl | statement;
   # varDecl        → "var" IDENTIFIER ("=" expression)? ";" ;
-  # statement      → exprStmt | printStmt | block ;
+  # statement      → exprStmt | ifStmt | printStmt | block ;
   # exprStmt       → expression ";" ;
   # printStmt      → "print" expression ";" ;
   # block          → "{" declaration* "}" ;
   # expression     → assignment ;
+  # ifStmt         → "if" "(" expression ")" statement
+  #                  ( "else" statement )? ;
   # assignment     → IDENTIFIER "=" assignment
   #                | equality ;
   # equality       → comparison ( ( "!=" | "==" ) comparison )* ;
@@ -93,10 +95,22 @@ module RubyLox
     end
 
     def statement
+      return ifStatement if match(:if)
       return printStatement if match(:print)
       return block if match(:left_brace)
 
       expressionStatement
+    end
+
+    def ifStatement
+      consume(:left_paren, "Expect '(' after if.")
+      condition = expression
+      consume(:right_paren, "Expect ')' after if condition.")
+
+      thenBranch = statement
+      elseBranch = match(:else) ? statement : nil
+
+      Statements::If.new(condition, thenBranch, elseBranch)
     end
 
     def printStatement
@@ -182,8 +196,8 @@ module RubyLox
 
     def primary
       return Expressions::Literal.new(false) if match(:false)
-      return Expressions::Literal.new(false) if match(:true)
-      return Expressions::Literal.new(false) if match(:nil)
+      return Expressions::Literal.new(true) if match(:true)
+      return Expressions::Literal.new(nil) if match(:nil)
 
       if match(:number, :string)
         return Expressions::Literal.new(previous.literal)

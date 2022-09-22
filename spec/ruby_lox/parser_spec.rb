@@ -359,4 +359,47 @@ RSpec.describe RubyLox::Parser do
       ]
     end
   end
+
+  context "with an an if statement" do
+    let(:tokens) do
+      [
+        token.new(:if, "if", nil, 1),
+        token.new(:left_paren, "(", nil, 1),
+        token.new(:true, "true", nil, 1),
+        token.new(:right_paren, ")", nil, 1),
+        token.new(:number, "42", 42, 2),
+        token.new(:semicolon, ";", nil, 2),
+      ]
+    end
+
+    context "without an else block" do
+      it "produces an if statement without else branch" do
+        expect(parser.errors).to eq []
+        expect(ast).to eq [stmt::If.new(
+          expr::Literal.new(true),
+          stmt::Expression.new(expr::Literal.new(42)),
+          nil
+        )]
+      end
+    end
+
+    context "with an else block" do
+      let(:tokens) do
+        super().concat([
+          token.new(:else, "else", nil, 3),
+          token.new(:number, "24", 24, 3),
+          token.new(:semicolon, ";", nil, 3),
+        ])
+      end
+
+      it "produces an if statement with an else branch" do
+        expect(parser.errors).to eq []
+        expect(ast).to eq [stmt::If.new(
+          expr::Literal.new(true),
+          stmt::Expression.new(expr::Literal.new(42)),
+          stmt::Expression.new(expr::Literal.new(24))
+        )]
+      end
+    end
+  end
 end
