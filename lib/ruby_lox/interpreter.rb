@@ -114,6 +114,18 @@ module RubyLox
       end
     end
 
+    def visitLogical(expr)
+      left = evaluate(expr.left)
+
+      if expr.operator.type == :or
+        return left if left
+      else
+        return left unless left
+      end
+
+      evaluate(expr.right)
+    end
+
     private
 
     def evaluate(expr)

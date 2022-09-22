@@ -54,5 +54,9 @@ module RubyLox
         "(if #{stmt.condition.accept(self)} #{stmt.thenBranch.accept(self)})"
       end
     end
+
+    def visitLogical(logical)
+      "(#{logical.operator.lexeme} #{logical.left.accept(self)} #{logical.right.accept(self)})"
+    end
   end
 end

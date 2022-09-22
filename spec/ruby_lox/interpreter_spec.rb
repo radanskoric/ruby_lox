@@ -106,6 +106,14 @@ RSpec.describe RubyLox::Interpreter do
         end
       end
     end
+
+    context "with a logical expression" do
+      let(:source) { "print false or true and 42 or 13;" }
+
+      it "evaluates it in correct order" do
+        expect(output).to eq "42"
+      end
+    end
   end
 
   context "with invalid source" do

@@ -402,4 +402,48 @@ RSpec.describe RubyLox::Parser do
       end
     end
   end
+
+  context "with a logical or statement" do
+    let(:tokens) do
+      [
+        token.new(:true, "true", nil, 1),
+        token.new(:or, "or", nil, 1),
+        token.new(:false, "false", nil, 1),
+        token.new(:semicolon, ";", nil, 1),
+      ]
+    end
+
+    it "produces an logical or statement" do
+      expect(parser.errors).to eq []
+      expect(ast).to eq [stmt::Expression.new(
+        expr::Logical.new(
+          expr::Literal.new(true),
+          token.new(:or, "or", nil, 1),
+          expr::Literal.new(false)
+        )
+      )]
+    end
+  end
+
+  context "with a logical and statement" do
+    let(:tokens) do
+      [
+        token.new(:false, "false", nil, 1),
+        token.new(:and, "and", nil, 1),
+        token.new(:true, "true", nil, 1),
+        token.new(:semicolon, ";", nil, 1),
+      ]
+    end
+
+    it "produces an logical or statement" do
+      expect(parser.errors).to eq []
+      expect(ast).to eq [stmt::Expression.new(
+        expr::Logical.new(
+          expr::Literal.new(false),
+          token.new(:and, "and", nil, 1),
+          expr::Literal.new(true)
+        )
+      )]
+    end
+  end
 end

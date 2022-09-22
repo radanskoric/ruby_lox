@@ -17,7 +17,9 @@ module RubyLox
   # ifStmt         → "if" "(" expression ")" statement
   #                  ( "else" statement )? ;
   # assignment     → IDENTIFIER "=" assignment
-  #                | equality ;
+  #                | logic_or ;
+  # logic_or       → logic_and ( "or" logic_and )* ;
+  # logic_and      → equality ( "and" equality )* ;
   # equality       → comparison ( ( "!=" | "==" ) comparison )* ;
   # comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
   # term           → factor ( ( "-" | "+" ) factor )* ;
@@ -142,7 +144,7 @@ module RubyLox
     end
 
     def assignment
-      expr = equality
+      expr = logic_or
 
       if match(:equal)
         equals = previous
@@ -153,6 +155,32 @@ module RubyLox
         end
 
         fail Error.new(equals, "Invalid assignment target.")
+      end
+
+      expr
+    end
+
+    def logic_or
+      expr = logic_and
+
+      while match(:or)
+        operator = previous
+        right = logic_and
+
+        expr = Expressions::Logical.new(expr, operator, right)
+      end
+
+      expr
+    end
+
+    def logic_and
+      expr = equality
+
+      while match(:and)
+        operator = previous
+        right = logic_and
+
+        expr = Expressions::Logical.new(expr, operator, right)
       end
 
       expr
