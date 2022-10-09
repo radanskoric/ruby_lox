@@ -58,5 +58,9 @@ module RubyLox
     def visitLogical(logical)
       "(#{logical.operator.lexeme} #{logical.left.accept(self)} #{logical.right.accept(self)})"
     end
+
+    def visitStmtWhile(stmt)
+      "(while #{stmt.condition.accept(self)} #{stmt.body.accept(self)})"
+    end
   end
 end

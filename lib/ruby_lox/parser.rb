@@ -9,9 +9,10 @@ module RubyLox
   # program        → declaration* EOF ;
   # declaration    → varDecl | statement;
   # varDecl        → "var" IDENTIFIER ("=" expression)? ";" ;
-  # statement      → exprStmt | ifStmt | printStmt | block ;
+  # statement      → exprStmt | ifStmt | printStmt | whileStmt | block ;
   # exprStmt       → expression ";" ;
   # printStmt      → "print" expression ";" ;
+  # whileStmt      → "while" "(" expression ")" statement;
   # block          → "{" declaration* "}" ;
   # expression     → assignment ;
   # ifStmt         → "if" "(" expression ")" statement
@@ -99,6 +100,7 @@ module RubyLox
     def statement
       return ifStatement if match(:if)
       return printStatement if match(:print)
+      return whileStatement if match(:while)
       return block if match(:left_brace)
 
       expressionStatement
@@ -119,6 +121,15 @@ module RubyLox
       expr = expression
       consume(:semicolon, "Expect ';' after expression.")
       Statements::Print.new(expr)
+    end
+
+    def whileStatement
+      consume(:left_paren, "Expect '(' after while.")
+      condition = expression
+      consume(:right_paren, "Expect ')' after while condition.")
+
+      body = statement
+      Statements::While.new(condition, body)
     end
 
     def block

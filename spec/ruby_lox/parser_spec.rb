@@ -446,4 +446,27 @@ RSpec.describe RubyLox::Parser do
       )]
     end
   end
+
+  context "with a while statement" do
+    let(:tokens) do
+      [
+        token.new(:while, "while", nil, 1),
+        token.new(:left_paren, "(", nil, 1),
+        token.new(:true, "true", nil, 1),
+        token.new(:right_paren, ")", nil, 1),
+        token.new(:number, "4", 4, 1),
+        token.new(:semicolon, ";", nil, 1),
+      ]
+    end
+
+    it "produces a while statement" do
+      expect(parser.errors).to eq []
+      expect(ast).to eq [stmt::While.new(
+        expr::Literal.new(true),
+        stmt::Expression.new(
+          expr::Literal.new(4)
+        )
+      )]
+    end
+  end
 end

@@ -89,6 +89,11 @@ module RubyLox
       nil
     end
 
+    def visitStmtWhile(stmt)
+      evaluate(stmt.body) while evaluate(stmt.condition)
+      nil
+    end
+
     def visitStmtVarDecl(stmt)
       value = stmt.initializer ? evaluate(stmt.initializer) : nil
       @environment.define(stmt.name.lexeme, value)

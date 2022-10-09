@@ -114,6 +114,14 @@ RSpec.describe RubyLox::Interpreter do
         expect(output).to eq "42"
       end
     end
+
+    context "with a while loop" do
+      let(:source) { "var i = 3; while (i>0) { print i; i = i - 1; }" }
+
+      it "runs the while loop" do
+        expect(output).to eq "3\n2\n1"
+      end
+    end
   end
 
   context "with invalid source" do
