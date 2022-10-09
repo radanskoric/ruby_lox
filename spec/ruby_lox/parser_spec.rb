@@ -2,6 +2,7 @@
 require "spec_helper"
 
 require "lib/ruby_lox/parser"
+require "lib/ruby_lox/scanner"
 
 RSpec.describe RubyLox::Parser do
   subject(:ast) { parser.parse }
@@ -10,6 +11,7 @@ RSpec.describe RubyLox::Parser do
   let(:expr) { RubyLox::Expressions }
   let(:stmt) { RubyLox::Statements }
   let(:token) { RubyLox::Token }
+  let(:tokens) { RubyLox::Scanner.new(source).scan_tokens }
 
   before { ast }
 
@@ -467,6 +469,31 @@ RSpec.describe RubyLox::Parser do
           expr::Literal.new(4)
         )
       )]
+    end
+  end
+
+  context "with a for loop" do
+    let(:source) { "for (var i = 0; i < 10; i = i + 1) print i;" }
+
+    let(:expected) do
+      RubyLox::Parser.new(
+        RubyLox::Scanner.new(
+          <<~CODE
+            {
+              var i = 0;
+              while (i < 10) {
+                print i;
+                i = i + 1;
+              }
+            }
+          CODE
+        ).scan_tokens
+      ).parse
+    end
+
+    it "desugars it to a while loop" do
+      expect(parser.errors).to eq []
+      expect(ast).to eq expected
     end
   end
 end

@@ -9,8 +9,11 @@ module RubyLox
   # program        → declaration* EOF ;
   # declaration    → varDecl | statement;
   # varDecl        → "var" IDENTIFIER ("=" expression)? ";" ;
-  # statement      → exprStmt | ifStmt | printStmt | whileStmt | block ;
+  # statement      → exprStmt | forStmt | ifStmt | printStmt | whileStmt | block ;
   # exprStmt       → expression ";" ;
+  # forStmt        → "for" "(" ( varDecl | exprStmt | ";" )\
+  #                  expression? ";"
+  #                  expression? ")" statement;
   # printStmt      → "print" expression ";" ;
   # whileStmt      → "while" "(" expression ")" statement;
   # block          → "{" declaration* "}" ;
@@ -98,12 +101,45 @@ module RubyLox
     end
 
     def statement
+      return forStatement if match(:for)
       return ifStatement if match(:if)
       return printStatement if match(:print)
       return whileStatement if match(:while)
       return block if match(:left_brace)
 
       expressionStatement
+    end
+
+    def forStatement
+      consume(:left_paren, "Expect '(' after for.")
+
+      initializer = if match(:semicolon)
+                      nil
+                    elsif match(:var)
+                      var_declaration
+                    else
+                      expressionStatement
+                    end
+
+      condition = check(:semicolon) ? nil : expression
+      consume(:semicolon, "Expect ';' after for loop condition.")
+
+      increment = check(:semicolon) ? nil : expression
+      consume(:right_paren, "Expect ')' after for clauses.")
+
+      body = statement
+
+      # Now we have all the pieces and we compose them into a while loop
+
+      if increment
+        body = Statements::Block.new([body, Statements::Expression.new(increment)])
+      end
+      condition ||= expr::Literal.new(true)
+      body = Statements::While.new(condition, body)
+      if initializer
+        body = Statements::Block.new([initializer, body])
+      end
+      body
     end
 
     def ifStatement
