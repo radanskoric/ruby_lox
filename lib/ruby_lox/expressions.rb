@@ -5,6 +5,7 @@ require_relative "ast_printer"
 module RubyLox
   module Expressions
     Binary = Struct.new(:left, :operator, :right)
+    Call = Struct.new(:callee, :paren, :arguments)
     Unary = Struct.new(:operator, :right)
     Grouping = Struct.new(:expression)
     Literal = Struct.new(:value)
@@ -12,7 +13,7 @@ module RubyLox
     Variable = Struct.new(:name)
     Assign = Struct.new(:name, :value)
 
-    [Binary, Unary, Grouping, Literal, Logical, Variable, Assign].each do |expression_class|
+    [Binary, Call, Unary, Grouping, Literal, Logical, Variable, Assign].each do |expression_class|
       klass_name = expression_class.name.split(":").last
       expression_class.class_eval <<~RUBY
         def accept(visitor)

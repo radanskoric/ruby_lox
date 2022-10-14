@@ -29,10 +29,11 @@ module RubyLox
   # term           → factor ( ( "-" | "+" ) factor )* ;
   # factor         → unary ( ( "/" | "*" ) unary )* ;
   # unary          → ( "!" | "-" ) unary
-  #                | primary ;
+  #                | call ;
+  # call           → primary ( "(" arguments? ")" )* ;
   # primary        → NUMBER | STRING | "true" | "false" | "nil"
   #                | "(" expression ")" | IDENTIFIER ;
-  #
+  # arguments      → expression ( "," expression )* ;
   class Parser
     class Error < StandardError
       def initialize(token, message)
@@ -46,6 +47,7 @@ module RubyLox
     end
 
     STATEMENT_START_TOKENS = %i[class for fun if print return var while].freeze
+    MAX_ARGS = 255
 
     attr_reader :errors
 
@@ -265,8 +267,37 @@ module RubyLox
         right = unary
         Expressions::Unary.new(operator, right)
       else
-        primary
+        call
       end
+    end
+
+    def call
+      expr = primary
+
+      while match(:left_paren)
+        args = arguments
+        consume(:right_paren, "Expect ')' after call arguments.")
+        expr = Expressions::Call.new(expr, previous, args)
+      end
+
+      expr
+    end
+
+    def arguments
+      args = []
+
+      if(!check(:right_paren))
+        args << expression
+        while match(:comma)
+          args << expression
+        end
+      end
+
+      if args.size >= MAX_ARGS
+        @errors << Error.new(peek, "Can't have more than #{MAX_ARGS} arguments.")
+      end
+
+      args
     end
 
     def primary

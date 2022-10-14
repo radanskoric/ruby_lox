@@ -496,4 +496,47 @@ RSpec.describe RubyLox::Parser do
       expect(ast).to eq expected
     end
   end
+
+  context "with a function call" do
+    let(:source) { "average(1, 2);" }
+
+    it "produces a function call" do
+      expect(parser.errors).to eq []
+      expect(ast).to eq [stmt::Expression.new(
+        expr::Call.new(
+          expr::Variable.new("average"),
+          token.new(:right_paren, ")", nil, 1),
+          [
+            expr::Literal.new(1),
+            expr::Literal.new(2)
+          ]
+        )
+      )]
+    end
+
+    context "with no arguments" do
+      let(:source) { "average();" }
+
+      it "produces a function call with no arguments" do
+        expect(parser.errors).to eq []
+        expect(ast).to eq [stmt::Expression.new(
+          expr::Call.new(
+            expr::Variable.new("average"),
+            token.new(:right_paren, ")", nil, 1),
+            []
+          )
+        )]
+      end
+    end
+
+    context "with more than 255 arguments" do
+      let(:source) { "average(#{(256.times.to_a.join("\n,"))});" }
+
+      it "logs an error" do
+        expect(parser.errors.map(&:to_s)).to eq [
+          "Error on line 256: Can't have more than 255 arguments.",
+        ]
+      end
+    end
+  end
 end

@@ -62,5 +62,9 @@ module RubyLox
     def visitStmtWhile(stmt)
       "(while #{stmt.condition.accept(self)} #{stmt.body.accept(self)})"
     end
+
+    def visitCall(expr)
+      "(call #{expr.callee.accept(self)} (#{expr.arguments.map { |arg| arg.accept(self) }.join(',')}))"
+    end
   end
 end

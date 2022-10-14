@@ -122,6 +122,14 @@ RSpec.describe RubyLox::Interpreter do
         expect(output).to eq "3\n2\n1"
       end
     end
+
+    context "with a native function call" do
+      let(:source) { "print clock();" }
+
+      it "works" do
+        expect(output).not_to be_empty
+      end
+    end
   end
 
   context "with invalid source" do
@@ -146,6 +154,22 @@ RSpec.describe RubyLox::Interpreter do
 
       it "raises a lox error" do
         expect { result }.to raise_error(described_class::SemanticError, /must be two numbers or two strings/)
+      end
+    end
+
+    context "when trying to call a non function" do
+      let(:source) { '"totally not a function"();' }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(described_class::SemanticError, /only call functions and classes/)
+      end
+    end
+
+    context "when calling a function with wrong arity" do
+      let(:source) { 'clock(42);' }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(described_class::SemanticError, /0 arguments but got 1/)
       end
     end
   end

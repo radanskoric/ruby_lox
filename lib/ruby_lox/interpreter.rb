@@ -21,6 +21,19 @@ module RubyLox
     def initialize(out = STDOUT)
       @out = out
       @environment = Environment.new
+      @environment.define("clock", Object.new.tap do |obj|
+        def obj.arity
+          0
+        end
+
+        def obj.call(_interpreter, _args)
+          Time.now.to_f
+        end
+
+        def obj.to_s
+          "<native fn clock>"
+        end
+      end)
     end
 
     def interpret(program)
@@ -131,6 +144,15 @@ module RubyLox
       evaluate(expr.right)
     end
 
+    def visitCall(expr)
+      callee = evaluate(expr.callee)
+      arguments = expr.arguments.map { |arg| evaluate(arg) }
+
+      checkValueIsCallable(expr.paren, callee)
+      checkArityMatches(expr.paren, callee, arguments)
+      callee.call(self, arguments)
+    end
+
     private
 
     def evaluate(expr)
@@ -161,6 +183,16 @@ module RubyLox
       return if (left.is_a?(Numeric) && right.is_a?(Numeric))
       return if (left.is_a?(String) && right.is_a?(String))
       fail SemanticError.new(token, "Operands must be two numbers or two strings.")
+    end
+
+    def checkValueIsCallable(token, value)
+      return if value.respond_to?(:call) && value.respond_to?(:arity)
+      fail SemanticError.new(token, "Can only call functions and classes.")
+    end
+
+    def checkArityMatches(token, fn, arguments)
+      return if fn.arity == arguments.size
+      fail SemanticError.new(token, "Expected #{fn.arity} arguments but got #{arguments.size}.")
     end
   end
 end
