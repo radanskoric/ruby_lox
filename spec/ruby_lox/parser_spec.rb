@@ -539,4 +539,34 @@ RSpec.describe RubyLox::Parser do
       end
     end
   end
+
+  context "with a function declaration" do
+    let(:source) { "fun add(a, b) { a + b; }" }
+
+    let(:expected) do
+      [
+        stmt::Function.new(
+          token.new(:identifier, "add", "add", 1),
+          [
+            token.new(:identifier, "a", "a", 1),
+            token.new(:identifier, "b", "b", 1),
+          ],
+          stmt::Block.new([
+            stmt::Expression.new(
+              expr::Binary.new(
+                expr::Variable.new("a"),
+                token.new(:plus, "+", nil, 1),
+                expr::Variable.new("b")
+              )
+            )
+          ])
+        )
+      ]
+    end
+
+    it "produces a function call" do
+      expect(parser.errors).to eq []
+      expect(ast).to eq expected
+    end
+  end
 end

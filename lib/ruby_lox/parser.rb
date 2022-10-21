@@ -7,7 +7,10 @@ module RubyLox
   # Parse the lox grammar, defines as:
   #
   # program        → declaration* EOF ;
-  # declaration    → varDecl | statement;
+  # declaration    → funDecl | varDecl | statement;
+  # funDecl        → "fun" function ;
+  # function       → IDENTIFIER "(" parameters? ")" block ;
+  # parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
   # varDecl        → "var" IDENTIFIER ("=" expression)? ";" ;
   # statement      → exprStmt | forStmt | ifStmt | printStmt | whileStmt | block ;
   # exprStmt       → expression ";" ;
@@ -81,6 +84,7 @@ module RubyLox
 
     def declaration
       begin
+        return function("function") if match(:fun)
         return var_declaration if match(:var)
         statement
       rescue Error => e
@@ -88,6 +92,35 @@ module RubyLox
         synchronize
         nil
       end
+    end
+
+    def function(kind)
+      name = consume(:identifier, "Expect #{kind} name.")
+
+      consume(:left_paren, "Expect ( after #{kind} name.")
+      params = parameters
+      consume(:right_paren, "Expect ) after #{kind} parameters.")
+
+      consume(:left_brace, "Expect '{' before #{kind} body.")
+      body = block
+
+      Statements::Function.new(name, params, body)
+    end
+
+    def parameters
+      params = []
+      return params if check(:right_paren)
+
+      params << consume(:identifier, "Expect parameter name.")
+      while match(:comma)
+        params << consume(:identifier, "Expect parameter name.")
+      end
+
+      if params.size >= MAX_ARGS
+        @errors << Error.new(peek, "Can't have more than #{MAX_ARGS} parameters.")
+      end
+
+      params
     end
 
     def var_declaration

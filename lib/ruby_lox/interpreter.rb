@@ -18,6 +18,32 @@ module RubyLox
       end
     end
 
+    class LoxFunction
+      def initialize(declaration)
+        @declaration = declaration
+      end
+
+      def call(interpreter, arguments)
+        env = Environment.new(interpreter.environment)
+        @declaration.params.each_with_index do |param, index|
+          env.define(param.lexeme, arguments.fetch(index))
+        end
+
+        interpreter.executeBlock(@declaration.body, env)
+        nil
+      end
+
+      def arity
+        @declaration.params.size
+      end
+
+      def to_s
+        "<fn #{@declaration.name.lexeme}>"
+      end
+    end
+
+    attr_reader :environment
+
     def initialize(out = STDOUT)
       @out = out
       @environment = Environment.new
@@ -120,7 +146,7 @@ module RubyLox
     end
 
     def visitStmtBlock(block)
-      executeBlock(block.statements, Environment.new(@environment))
+      executeBlock(block, Environment.new(@environment))
       nil
     end
 
@@ -153,20 +179,27 @@ module RubyLox
       callee.call(self, arguments)
     end
 
+    def visitStmtFunction(stmt)
+      function = LoxFunction.new(stmt)
+      @environment.define(stmt.name.lexeme, function)
+      nil
+    end
+
+    # Public so it would be accessible by function objects.
+    def executeBlock(block, environment)
+      begin
+        previous = @environment
+        @environment = environment
+        block.statements.each { |stmt| stmt.accept(self) }
+      ensure
+        @environment = previous
+      end
+    end
+
     private
 
     def evaluate(expr)
       expr.accept(self)
-    end
-
-    def executeBlock(statements, environment)
-      begin
-        previous = @environment
-        @environment = environment
-        statements.each { |stmt| stmt.accept(self) }
-      ensure
-        @environment = previous
-      end
     end
 
     def checkNumberOperand(token, value)

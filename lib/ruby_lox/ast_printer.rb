@@ -66,5 +66,9 @@ module RubyLox
     def visitCall(expr)
       "(call #{expr.callee.accept(self)} (#{expr.arguments.map { |arg| arg.accept(self) }.join(',')}))"
     end
+
+    def visitStmtFunction(stmt)
+      "(fun #{stmt.name.lexeme}(#{stmt.params.map(&:literal).join(",")}) #{stmt.body.accept(self)}"
+    end
   end
 end
