@@ -31,6 +31,10 @@ module RubyLox
       "(print #{stmt.expression.accept(self)})"
     end
 
+    def visitStmtReturn(stmt)
+      "(return #{stmt.value&.accept(self)})"
+    end
+
     def visitStmtVarDecl(stmt)
       if stmt.initializer
         "(var #{stmt.name.lexeme} #{stmt.initializer.accept(self)})"

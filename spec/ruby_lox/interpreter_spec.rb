@@ -101,8 +101,36 @@ RSpec.describe RubyLox::Interpreter do
       context "that has a false condition" do
         let(:condition) { "2+2 == 4+4" }
 
-        it "executes the then branch" do
+        it "executes the else branch" do
           expect(output).to eq "no"
+        end
+      end
+
+      context "when there is no else branch" do
+        let(:source) { "if (#{condition}) print \"yes\";" }
+
+        context "that has a true condition" do
+          let(:condition) { "2+2 == 4" }
+
+          it "executes the then branch" do
+            expect(output).to eq "yes"
+          end
+        end
+
+        context "that has a false condition" do
+          let(:condition) { "2+2 == 4+4" }
+
+          it "does nothing" do
+            expect(output).to eq ""
+          end
+        end
+      end
+
+      context "when there are no branches" do
+        let(:source) { "if (true) ;" }
+
+        it "does nothing" do
+          expect(output).to eq ""
         end
       end
     end
@@ -128,6 +156,40 @@ RSpec.describe RubyLox::Interpreter do
 
       it "works" do
         expect(output).not_to be_empty
+      end
+    end
+
+    context "with a custom function that does not return a value" do
+      let(:source) do
+        <<~CODE
+          fun print_with_title(title, output) {
+            print title;
+            print output;
+            return;
+          }
+
+          print_with_title("Answer:", 42);
+        CODE
+      end
+
+      it "works" do
+        expect(output).to eq "Answer:\n42"
+      end
+    end
+
+    context "with a custom function that returns a value" do
+      let(:source) do
+        <<~CODE
+          fun add5(a) {
+            return a + 5;
+          }
+
+          print add5(37);
+        CODE
+      end
+
+      it "works" do
+        expect(output).to eq "42"
       end
     end
   end

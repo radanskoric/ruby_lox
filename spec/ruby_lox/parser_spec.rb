@@ -175,6 +175,23 @@ RSpec.describe RubyLox::Parser do
     end
   end
 
+  context "with a return statement" do
+    let(:tokens) do
+      [
+        token.new(:return, "return", nil, 1),
+        token.new(:number, "4", 4, 1),
+        token.new(:semicolon, ";", nil, 1),
+      ]
+    end
+
+    it "returns correct hierarchy of expressions" do
+      expect(ast).to eq [stmt::Return.new(
+        token.new(:return, "return", nil, 1),
+        expr::Literal.new(4),
+      )]
+    end
+  end
+
   context "with multiple statements" do
     let(:tokens) do
       [

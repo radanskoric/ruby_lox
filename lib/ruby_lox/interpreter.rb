@@ -18,6 +18,14 @@ module RubyLox
       end
     end
 
+    class ReturnValue < RuntimeError
+      attr_reader :value
+
+      def initialize(value)
+        @value = value
+      end
+    end
+
     class LoxFunction
       def initialize(declaration)
         @declaration = declaration
@@ -31,6 +39,8 @@ module RubyLox
 
         interpreter.executeBlock(@declaration.body, env)
         nil
+      rescue ReturnValue => e
+        e.value
       end
 
       def arity
@@ -128,6 +138,11 @@ module RubyLox
       nil
     end
 
+    def visitStmtReturn(stmt)
+      value = stmt.value ? evaluate(stmt.value) : nil
+      raise ReturnValue.new(value)
+    end
+
     def visitStmtWhile(stmt)
       evaluate(stmt.body) while evaluate(stmt.condition)
       nil
@@ -153,7 +168,7 @@ module RubyLox
     def visitStmtIf(stmt)
       if evaluate(stmt.condition)
         evaluate(stmt.thenBranch)
-      else
+      elsif stmt.elseBranch
         evaluate(stmt.elseBranch)
       end
     end

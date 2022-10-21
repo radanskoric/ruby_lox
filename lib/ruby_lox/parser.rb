@@ -12,12 +12,19 @@ module RubyLox
   # function       → IDENTIFIER "(" parameters? ")" block ;
   # parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
   # varDecl        → "var" IDENTIFIER ("=" expression)? ";" ;
-  # statement      → exprStmt | forStmt | ifStmt | printStmt | whileStmt | block ;
+  # statement      → exprStmt
+  #                | forStmt
+  #                | ifStmt
+  #                | printStmt
+  #                | returnStmt
+  #                | whileStmt
+  #                | block ;
   # exprStmt       → expression ";" ;
   # forStmt        → "for" "(" ( varDecl | exprStmt | ";" )\
   #                  expression? ";"
   #                  expression? ")" statement;
   # printStmt      → "print" expression ";" ;
+  # returnStmt     → "return" expression? ";" ;
   # whileStmt      → "while" "(" expression ")" statement;
   # block          → "{" declaration* "}" ;
   # expression     → assignment ;
@@ -139,6 +146,7 @@ module RubyLox
       return forStatement if match(:for)
       return ifStatement if match(:if)
       return printStatement if match(:print)
+      return returnStatement if match(:return)
       return whileStatement if match(:while)
       return block if match(:left_brace)
 
@@ -192,6 +200,13 @@ module RubyLox
       expr = expression
       consume(:semicolon, "Expect ';' after expression.")
       Statements::Print.new(expr)
+    end
+
+    def returnStatement
+      keyword = previous
+      value = check(:semicolon) ? nil : expression
+      consume(:semicolon, "Expect ';' after return value.")
+      Statements::Return.new(keyword, value)
     end
 
     def whileStatement
