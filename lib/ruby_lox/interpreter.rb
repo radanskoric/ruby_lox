@@ -27,12 +27,15 @@ module RubyLox
     end
 
     class LoxFunction
-      def initialize(declaration)
+      # @param declaration [RubyLox::Statements::Functions]
+      # @param closure [RubyLox::Environment]
+      def initialize(declaration, closure)
         @declaration = declaration
+        @closure = closure
       end
 
       def call(interpreter, arguments)
-        env = Environment.new(interpreter.environment)
+        env = Environment.new(@closure)
         @declaration.params.each_with_index do |param, index|
           env.define(param.lexeme, arguments.fetch(index))
         end
@@ -195,7 +198,7 @@ module RubyLox
     end
 
     def visitStmtFunction(stmt)
-      function = LoxFunction.new(stmt)
+      function = LoxFunction.new(stmt, @environment)
       @environment.define(stmt.name.lexeme, function)
       nil
     end
