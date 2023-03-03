@@ -22,12 +22,11 @@ def runPrompt
   end
 end
 
-if (ARGV.length > 1)
+if ARGV.length > 1
   puts "Usage: bin/run [script]"
   exit(64)
-elsif (ARGV.length == 1)
+elsif ARGV.length == 1
   runFile(ARGV[0])
 else
-  runPrompt()
+  runPrompt
 end
-

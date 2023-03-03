@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   DESCRIPTION
   spec.homepage = "https://github.com/radanskoric/ruby_lox"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 2.6.0"
+  spec.required_ruby_version = ">= 2.7.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/radanskoric/ruby_lox"
@@ -31,10 +31,10 @@ Gem::Specification.new do |spec|
   end
   spec.require_paths = ["lib"]
 
+  spec.add_development_dependency "debug", ">= 1.0.0"
   spec.add_development_dependency "rspec-core", "~> 3.11"
   spec.add_development_dependency "rspec-expectations", "~> 3.11"
   spec.add_development_dependency "rspec-mocks", "~> 3.11"
-  spec.add_development_dependency "debug", ">= 1.0.0"
 
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"

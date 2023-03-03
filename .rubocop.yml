@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 2.6
+  TargetRubyVersion: 2.7
 
 Style/StringLiterals:
   Enabled: true
@@ -11,3 +11,22 @@ Style/StringLiteralsInInterpolation:
 
 Layout/LineLength:
   Max: 120
+
+Metrics/BlockLength:
+  Enabled: false
+
+# For easier reading of the book while writting this code,
+# I'm following its convention which is Java because
+# the book code is in Java. So I'll disable the naming rules.
+Naming/MethodName:
+  Enabled: false
+
+Naming/MethodParameterName:
+  Enabled: false
+
+Naming/VariableName:
+  Enabled: false
+
+# I'm following a book closely with the code, the book is the documentation.
+Style/Documentation:
+  Enabled: false
