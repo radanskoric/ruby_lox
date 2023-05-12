@@ -18,15 +18,16 @@ Metrics/BlockLength:
 # For easier reading of the book while writting this code,
 # I'm following its convention which is Java because
 # the book code is in Java. So I'll disable the naming rules.
-Naming/MethodName:
+Naming:
   Enabled: false
 
-Naming/MethodParameterName:
-  Enabled: false
-
-Naming/VariableName:
+# For the same reason I won't fiddle with code organisation to get
+# smaller methods. I'm following book's code structure which makes
+# sense in the context of an interpreter.
+Metrics:
   Enabled: false
 
 # I'm following a book closely with the code, the book is the documentation.
 Style/Documentation:
   Enabled: false
+

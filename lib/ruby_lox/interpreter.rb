@@ -22,6 +22,7 @@ module RubyLox
       attr_reader :value
 
       def initialize(value)
+        super()
         @value = value
       end
     end
@@ -40,7 +41,7 @@ module RubyLox
           env.define(param.lexeme, arguments.fetch(index))
         end
 
-        interpreter.executeBlock(@declaration.body, env)
+        interpreter.executeBlock(@declaration.body, Environment.new(env))
         nil
       rescue ReturnValue => e
         e.value
@@ -59,7 +60,7 @@ module RubyLox
 
     def initialize(out = STDOUT)
       @out = out
-      @environment = Environment.new
+      @globals = @environment = Environment.new
       @environment.define("clock", Object.new.tap do |obj|
         def obj.arity
           0
@@ -73,6 +74,7 @@ module RubyLox
           "<native fn clock>"
         end
       end)
+      @locals = {}
     end
 
     def interpret(program)
@@ -126,7 +128,7 @@ module RubyLox
     end
 
     def visitVariable(variable)
-      @environment.get(variable.name)
+      lookUpVariable(variable.name, variable)
     end
 
     def visitStmtExpression(stmt)
@@ -159,7 +161,7 @@ module RubyLox
 
     def visitAssign(expr)
       value = evaluate(expr.value)
-      @environment.assign(expr.name, value)
+      assignVariable(expr.name, expr, value)
       nil
     end
 
@@ -205,13 +207,15 @@ module RubyLox
 
     # Public so it would be accessible by function objects.
     def executeBlock(block, environment)
-      begin
-        previous = @environment
-        @environment = environment
-        block.statements.each { |stmt| stmt.accept(self) }
-      ensure
-        @environment = previous
-      end
+      previous = @environment
+      @environment = environment
+      block.statements.each { |stmt| stmt.accept(self) }
+    ensure
+      @environment = previous
+    end
+
+    def resolve(expr, depth)
+      @locals[expr] = depth
     end
 
     private
@@ -220,29 +224,44 @@ module RubyLox
       expr.accept(self)
     end
 
+    def lookUpVariable(name, expr)
+      distance = @locals[expr]
+      distance ? @environment.getAt(distance, name.lexeme) : @globals.get(name.lexeme)
+    end
+
+    def assignVariable(name, expr, value)
+      distance = @locals[expr]
+      distance ? @environment.assignAt(distance, name.lexeme, value) : @globals.assign(name.lexeme, value)
+    end
+
     def checkNumberOperand(token, value)
       return if value.is_a? Numeric
+
       fail SemanticError.new(token, "Operand must be a number.")
     end
 
     def checkNumberOperands(token, left, right)
       return if left.is_a?(Numeric) && right.is_a?(Numeric)
+
       fail SemanticError.new(token, "Operands must be numbers.")
     end
 
     def checkAddableOperands(token, left, right)
-      return if (left.is_a?(Numeric) && right.is_a?(Numeric))
-      return if (left.is_a?(String) && right.is_a?(String))
+      return if left.is_a?(Numeric) && right.is_a?(Numeric)
+      return if left.is_a?(String) && right.is_a?(String)
+
       fail SemanticError.new(token, "Operands must be two numbers or two strings.")
     end
 
     def checkValueIsCallable(token, value)
       return if value.respond_to?(:call) && value.respond_to?(:arity)
+
       fail SemanticError.new(token, "Can only call functions and classes.")
     end
 
     def checkArityMatches(token, fn, arguments)
       return if fn.arity == arguments.size
+
       fail SemanticError.new(token, "Expected #{fn.arity} arguments but got #{arguments.size}.")
     end
   end

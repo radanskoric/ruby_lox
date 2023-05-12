@@ -39,7 +39,13 @@ module RubyLox
     end
 
     def ==(other)
+      # binding.break if other == "showA"
       self.type == other.type && self.literal == other.literal
+    end
+    alias eql? ==
+
+    def hash
+      [type, literal].hash
     end
   end
 end

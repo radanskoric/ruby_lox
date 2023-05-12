@@ -48,4 +48,32 @@ RSpec.describe RubyLox::Token do
       it { is_expected.to eq(false) }
     end
   end
+
+  describe "#hash" do
+    subject { token.hash }
+
+    context "when other is identical by type and literal" do
+      let(:other) { described_class.new(type, nil, literal, nil) }
+
+      it "matches" do
+        expect(subject).to eq(other.hash)
+      end
+    end
+
+    context "when other is different by type" do
+      let(:other) { described_class.new(:string, lexeme, literal, line) }
+
+      it "doesn't match" do
+        expect(subject).not_to eq(other.hash)
+      end
+    end
+
+    context "when other is different by literal" do
+      let(:other) { described_class.new(type, lexeme, 100, line) }
+
+      it "doesn't match" do
+        expect(subject).not_to eq(other.hash)
+      end
+    end
+  end
 end

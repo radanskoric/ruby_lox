@@ -10,7 +10,10 @@ require "lib/ruby_lox/expressions"
 require "lib/ruby_lox/token"
 
 RSpec.describe RubyLox::Interpreter do
-  subject(:result) { interpreter.interpret(ast) }
+  subject(:result) do
+    RubyLox::Resolver.new(interpreter).resolve(ast)
+    interpreter.interpret(ast)
+  end
 
   let(:interpreter) { described_class.new(out) }
   let(:out) { StringIO.new }
@@ -190,6 +193,27 @@ RSpec.describe RubyLox::Interpreter do
 
       it "works" do
         expect(output).to eq "42"
+      end
+    end
+
+    context "with a variable name rebound after closure creation" do
+      let(:source) do
+        <<~CODE
+          var a = "global";
+          {
+            fun showA() {
+              print a;
+            }
+
+            showA();
+            var a = "block";
+            showA();
+          }
+        CODE
+      end
+
+      it "keeps the closure bound to original definition" do
+        expect(output).to eq "global\nglobal"
       end
     end
   end

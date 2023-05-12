@@ -47,6 +47,7 @@ module RubyLox
   class Parser
     class Error < StandardError
       def initialize(token, message)
+        super()
         @token = token
         @message = message
       end
@@ -358,7 +359,7 @@ module RubyLox
       end
 
       if match(:identifier)
-        return Expressions::Variable.new(previous.lexeme)
+        return Expressions::Variable.new(previous)
       end
 
       if match(:left_paren)

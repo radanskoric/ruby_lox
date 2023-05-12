@@ -3,6 +3,7 @@
 require_relative "ruby_lox/version"
 require_relative "ruby_lox/scanner"
 require_relative "ruby_lox/parser"
+require_relative "ruby_lox/resolver"
 require_relative "ruby_lox/interpreter"
 
 module RubyLox
@@ -29,6 +30,9 @@ module RubyLox
         parser.errors.each { |err| puts "  #{err}" }
         return
       end
+
+      resolver = RubyLox::Resolver.new(@interpreter)
+      resolver.resolve(ast)
 
       begin
         @interpreter.interpret(ast)

@@ -275,9 +275,9 @@ RSpec.describe RubyLox::Parser do
   context "with variable access" do
     let(:tokens) do
       [
-        token.new(:identifier, "foo", nil, 1),
+        token.new(:identifier, "foo", "foo", 1),
         token.new(:equal_equal, "==", nil, 1),
-        token.new(:identifier, "bar", nil, 1),
+        token.new(:identifier, "bar", "bar", 1),
         token.new(:semicolon, ";", nil, 1),
       ]
     end
@@ -285,9 +285,9 @@ RSpec.describe RubyLox::Parser do
     it "returns a variable access expression" do
       expect(ast).to eq [stmt::Expression.new(
         expr::Binary.new(
-          expr::Variable.new("foo"),
+          expr::Variable.new(token.new(:identifier, "foo", "foo", 1)),
           token.new(:equal_equal, "==", nil, 1),
-          expr::Variable.new("bar")
+          expr::Variable.new(token.new(:identifier, "bar", "bar", 1))
         )
       )]
     end
@@ -300,7 +300,7 @@ RSpec.describe RubyLox::Parser do
   context "with variable assignment" do
     let(:tokens) do
       [
-        token.new(:identifier, "a", nil, 1),
+        token.new(:identifier, "a", "a", 1),
         token.new(:equal, "=", nil, 1),
         token.new(:number, "4", 4, 1),
         token.new(:semicolon, ";", nil, 1),
@@ -310,7 +310,7 @@ RSpec.describe RubyLox::Parser do
     it "returns an assignment expression" do
       expect(ast).to eq [stmt::Expression.new(
         expr::Assign.new(
-          "a",
+          token.new(:identifier, "a", "a", 1),
           expr::Literal.new(4)
         )
       )]
@@ -521,7 +521,7 @@ RSpec.describe RubyLox::Parser do
       expect(parser.errors).to eq []
       expect(ast).to eq [stmt::Expression.new(
         expr::Call.new(
-          expr::Variable.new("average"),
+          expr::Variable.new(token.new(:identifier, "average", "average", 1)),
           token.new(:right_paren, ")", nil, 1),
           [
             expr::Literal.new(1),
@@ -538,7 +538,7 @@ RSpec.describe RubyLox::Parser do
         expect(parser.errors).to eq []
         expect(ast).to eq [stmt::Expression.new(
           expr::Call.new(
-            expr::Variable.new("average"),
+            expr::Variable.new(token.new(:identifier, "average", "average", 1)),
             token.new(:right_paren, ")", nil, 1),
             []
           )
@@ -571,9 +571,9 @@ RSpec.describe RubyLox::Parser do
           stmt::Block.new([
             stmt::Expression.new(
               expr::Binary.new(
-                expr::Variable.new("a"),
+                expr::Variable.new(token.new(:identifier, "a", "a", 1)),
                 token.new(:plus, "+", nil, 1),
-                expr::Variable.new("b")
+                expr::Variable.new(token.new(:identifier, "b", "b", 1))
               )
             )
           ])
