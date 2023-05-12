@@ -258,6 +258,29 @@ RSpec.describe RubyLox::Interpreter do
         expect { result }.to raise_error(described_class::SemanticError, /0 arguments but got 1/)
       end
     end
+
+    context "when redeclaring a variable in local scope" do
+      let(:source) do
+        <<~CODE
+          fun bad() {
+            var a = "first";
+            var a = "second";
+          }
+        CODE
+      end
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(RubyLox::Resolver::Error, /Already a variable with this name in this scope/)
+      end
+    end
+
+    context "when returning from top level" do
+      let(:source) { 'return "at top level";' }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(RubyLox::Resolver::Error, /Can't return from top-level code/)
+      end
+    end
   end
 
   context "with an expression defined directly" do

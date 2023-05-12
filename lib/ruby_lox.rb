@@ -31,8 +31,13 @@ module RubyLox
         return
       end
 
-      resolver = RubyLox::Resolver.new(@interpreter)
-      resolver.resolve(ast)
+      begin
+        resolver = RubyLox::Resolver.new(@interpreter)
+        resolver.resolve(ast)
+      rescue LoxCompileError => e
+        puts e
+        return
+      end
 
       begin
         @interpreter.interpret(ast)

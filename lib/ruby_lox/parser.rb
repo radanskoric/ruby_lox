@@ -2,6 +2,7 @@
 require_relative "token"
 require_relative "expressions"
 require_relative "statements"
+require_relative "errors"
 
 module RubyLox
   # Parse the lox grammar, defines as:
@@ -45,9 +46,9 @@ module RubyLox
   #                | "(" expression ")" | IDENTIFIER ;
   # arguments      → expression ( "," expression )* ;
   class Parser
-    class Error < StandardError
+    class Error < LoxCompileError
       def initialize(token, message)
-        super()
+        super
         @token = token
         @message = message
       end

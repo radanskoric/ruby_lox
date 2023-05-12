@@ -5,9 +5,18 @@ module RubyLox
   # Implements an additional pass after parsing that resolves variable
   # lookup. It enables static as opposed to dynamic lookup.
   class Resolver
+    class Error < LoxCompileError; end
+
+    # In the book, jlox uses an enum. Here a hash will pretend it's an enum.
+    FUNCTION_TYPE = {
+      none: 0,
+      function: 1
+    }.freeze
+
     def initialize(interpreter)
       @interpreter = interpreter
       @scopes = []
+      @currentFunction = FUNCTION_TYPE[:none]
     end
 
     def resolve(statement_or_statements)
@@ -41,6 +50,7 @@ module RubyLox
       if @scopes.any? && @scopes.last[variable.name] == false
         fail LoxCompilerError.new(variable.name, "Can't read local variable in its own initializer.")
       end
+
       resolveLocal(variable, variable.name)
     end
 
@@ -53,6 +63,8 @@ module RubyLox
     end
 
     def visitStmtReturn(stmt)
+      fail(Error.new(stmt.keyword, "Can't return from top-level code.")) if @currentFunction == FUNCTION_TYPE[:none]
+
       resolve(stmt.value) if stmt.value
     end
 
@@ -98,7 +110,7 @@ module RubyLox
     def visitStmtFunction(stmt)
       declare(stmt.name)
       define(stmt.name)
-      resolveFunction(stmt)
+      resolveFunction(stmt, FUNCTION_TYPE[:function])
     end
 
     private
@@ -114,6 +126,8 @@ module RubyLox
     def declare(name)
       return if @scopes.empty?
 
+      fail(Error.new(name, "Already a variable with this name in this scope.")) if @scopes.last.key?(name)
+
       @scopes.last[name] = false
     end
 
@@ -128,7 +142,10 @@ module RubyLox
       @interpreter.resolve(expr, index) if index
     end
 
-    def resolveFunction(function)
+    def resolveFunction(function, type)
+      enclosingFunction = @currentFunction
+      @currentFunction = type
+
       beginScope
       function.params.each do |param|
         declare(param)
@@ -136,6 +153,8 @@ module RubyLox
       end
       resolve(function.body)
       endScope
+
+      @currentFunction = enclosingFunction
     end
   end
 end
