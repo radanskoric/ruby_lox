@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "spec_helper"
 
 require "lib/ruby_lox/scanner"
@@ -123,7 +124,7 @@ RSpec.describe RubyLox::Scanner do
     context "with a string" do
       let(:source) { "\"#{string}\"" }
 
-      let(:string) { 'this is a string' }
+      let(:string) { "this is a string" }
 
       it "parses the tokens" do
         expect(token_types).to eq %i[string eof]

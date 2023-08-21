@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "spec_helper"
 
 require "stringio"
@@ -217,7 +218,6 @@ RSpec.describe RubyLox::Interpreter do
       end
     end
 
-
     context "when printing the class name" do
       let(:source) do
         <<~CODE
@@ -271,7 +271,7 @@ RSpec.describe RubyLox::Interpreter do
     end
 
     context "when calling a function with wrong arity" do
-      let(:source) { 'clock(42);' }
+      let(:source) { "clock(42);" }
 
       it "raises a lox error" do
         expect { result }.to raise_error(described_class::SemanticError, /0 arguments but got 1/)
@@ -324,7 +324,7 @@ RSpec.describe RubyLox::Interpreter do
     let(:expr) { RubyLox::Expressions }
 
     it "calculates the value of the ast" do
-      expect(result).to eq -5617.41
+      expect(result).to eq(-5617.41)
     end
   end
 end

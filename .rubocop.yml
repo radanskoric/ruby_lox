@@ -1,5 +1,6 @@
 AllCops:
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.2
+  NewCops: disable
 
 Style/StringLiterals:
   Enabled: true
@@ -27,7 +28,12 @@ Naming:
 Metrics:
   Enabled: false
 
-# I'm following a book closely with the code, the book is the documentation.
-Style/Documentation:
+# The code is intetionally not following idiomatic ruby formatting style
+# so that's it's closer to the book's code which is in Java. This is so
+# that it's easier to find relevant parts of the book while reading the code.
+Style:
   Enabled: false
 
+# One of the tokens is `:true` so this misfires a lot.
+Lint/BooleanSymbol:
+  Enabled: false

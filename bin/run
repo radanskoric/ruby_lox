@@ -16,7 +16,7 @@ end
 def runPrompt
   runner = RubyLox::Runner.new
   print "> "
-  while line = gets
+  while (line = gets)
     run line, runner
     print "> "
   end

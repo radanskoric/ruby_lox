@@ -10,7 +10,7 @@ module RubyLox
     Return = Struct.new(:keyword, :value)
     VarDecl = Struct.new(:name, :initializer)
     Block = Struct.new(:statements)
-    Class = Struct.new(:name, :methods)
+    Class = Struct.new(:name, :methods) # rubocop:disable Lint/StructNewOverride
     If = Struct.new(:condition, :thenBranch, :elseBranch)
     While = Struct.new(:condition, :body)
 

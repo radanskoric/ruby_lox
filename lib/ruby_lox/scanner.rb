@@ -1,9 +1,10 @@
 # frozen_string_literal: true
+
 require_relative "token"
 
 module RubyLox
   class Scanner
-    DIGITS = ('0'..'9').freeze
+    DIGITS = ("0".."9").freeze
     ALPHA = /[a-zA-Z_]/.freeze
 
     RESERVED_WORDS = %w[
@@ -23,10 +24,6 @@ module RubyLox
     end
 
     class UnclosedString < LexicalError
-      def initialize(line)
-        @line = line
-      end
-
       def to_s
         "Expected string closing quote \" but found none on line #{@line}"
       end
@@ -72,22 +69,22 @@ module RubyLox
     def scan_token
       c = advance
       case c
-      when '(' then add_token(:left_paren)
-      when ')' then add_token(:right_paren)
-      when '{' then add_token(:left_brace)
-      when '}' then add_token(:right_brace)
-      when ',' then add_token(:comma)
-      when '.' then add_token(:dot)
-      when '-' then add_token(:minus)
-      when '+' then add_token(:plus)
-      when ';' then add_token(:semicolon)
-      when '*' then add_token(:star)
-      when '!' then add_token(match('=') ? :bang_equal : :bang)
-      when '=' then add_token(match('=') ? :equal_equal : :equal)
-      when '<' then add_token(match('=') ? :less_equal : :less)
-      when '>' then add_token(match('=') ? :greater_equal : :greater)
-      when '/' then
-        if match('/')
+      when "(" then add_token(:left_paren)
+      when ")" then add_token(:right_paren)
+      when "{" then add_token(:left_brace)
+      when "}" then add_token(:right_brace)
+      when "," then add_token(:comma)
+      when "." then add_token(:dot)
+      when "-" then add_token(:minus)
+      when "+" then add_token(:plus)
+      when ";" then add_token(:semicolon)
+      when "*" then add_token(:star)
+      when "!" then add_token(match("=") ? :bang_equal : :bang)
+      when "=" then add_token(match("=") ? :equal_equal : :equal)
+      when "<" then add_token(match("=") ? :less_equal : :less)
+      when ">" then add_token(match("=") ? :greater_equal : :greater)
+      when "/" then
+        if match("/")
           advance while peek != "\n" && !end?
         else
           add_token(:slash)
@@ -113,6 +110,7 @@ module RubyLox
 
     def match(c)
       return false if end?
+
       peek == c ? advance : false
     end
 
@@ -125,7 +123,7 @@ module RubyLox
     end
 
     def add_token(type, literal = nil)
-      @tokens << Token.new(type, @source[@start..@current-1], literal, @line)
+      @tokens << Token.new(type, @source[@start..@current - 1], literal, @line)
     end
 
     def scan_string
@@ -135,26 +133,26 @@ module RubyLox
       end
 
       if match('"')
-        add_token(:string, @source[@start+1..@current-2])
+        add_token(:string, @source[@start + 1..@current - 2])
       else
-        @errors << UnclosedString.new(@line)
+        @errors << UnclosedString.new(peek, @line)
       end
     end
 
     def scan_number
       advance while DIGITS.include?(peek)
 
-      if peek == '.' && DIGITS.include?(peek_next)
+      if peek == "." && DIGITS.include?(peek_next)
         advance
         advance while DIGITS.include?(peek)
       end
 
-      add_token(:number, @source[@start..@current-1].to_f)
+      add_token(:number, @source[@start..@current - 1].to_f)
     end
 
     def scan_identifier
       advance while isAlphaNumeric(peek)
-      value = @source[@start..@current-1]
+      value = @source[@start..@current - 1]
       if RESERVED_WORDS.include?(value)
         add_token(value.to_sym)
       else

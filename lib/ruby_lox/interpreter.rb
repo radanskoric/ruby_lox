@@ -66,7 +66,7 @@ module RubyLox
         @name
       end
 
-      def call(interpreter, arguments)
+      def call(_interpreter, _arguments)
         LoxInstance.new(self)
       end
 
@@ -123,18 +123,18 @@ module RubyLox
       # I'm very lucky here that Lox operands happen to behave the same
       # way as Ruby ones so I get the correct behaviour for free.
       case binary.operator.type
-        when :minus then left - right
-        when :slash then left / right
-        when :star then left * right
-        when :plus then
-          checkAddableOperands(binary.operator, left, right)
-          left + right
-        when :greater then left > right
-        when :greater_equal then left >= right
-        when :less then left < right
-        when :less_equal then left <= right
-        when :bang_equal then left != right
-        when :equal_equal then left == right
+      when :minus then left - right
+      when :slash then left / right
+      when :star then left * right
+      when :plus then
+        checkAddableOperands(binary.operator, left, right)
+        left + right
+      when :greater then left > right
+      when :greater_equal then left >= right
+      when :less then left < right
+      when :less_equal then left <= right
+      when :bang_equal then left != right
+      when :equal_equal then left == right
       end
     end
 
@@ -150,10 +150,10 @@ module RubyLox
       value = evaluate(unary.right)
 
       case unary.operator.type
-        when :bang then !value
-        when :minus then
-          checkNumberOperand(unary.operator, value)
-          -value
+      when :bang then !value
+      when :minus then
+        checkNumberOperand(unary.operator, value)
+        -value
       end
     end
 

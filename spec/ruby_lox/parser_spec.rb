@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "spec_helper"
 
 require "lib/ruby_lox/parser"
@@ -355,10 +356,10 @@ RSpec.describe RubyLox::Parser do
 
     it "returns an block statement" do
       expect(ast).to eq [stmt::Block.new([
-        stmt::Expression.new(
-          expr::Literal.new(4)
-        )
-      ])]
+                                           stmt::Expression.new(
+                                             expr::Literal.new(4)
+                                           )
+                                         ])]
     end
   end
 
@@ -405,10 +406,10 @@ RSpec.describe RubyLox::Parser do
     context "with an else block" do
       let(:tokens) do
         super().concat([
-          token.new(:else, "else", nil, 3),
-          token.new(:number, "24", 24, 3),
-          token.new(:semicolon, ";", nil, 3),
-        ])
+                         token.new(:else, "else", nil, 3),
+                         token.new(:number, "24", 24, 3),
+                         token.new(:semicolon, ";", nil, 3),
+                       ])
       end
 
       it "produces an if statement with an else branch" do
@@ -569,14 +570,14 @@ RSpec.describe RubyLox::Parser do
             token.new(:identifier, "b", "b", 1),
           ],
           stmt::Block.new([
-            stmt::Expression.new(
-              expr::Binary.new(
-                expr::Variable.new(token.new(:identifier, "a", "a", 1)),
-                token.new(:plus, "+", nil, 1),
-                expr::Variable.new(token.new(:identifier, "b", "b", 1))
-              )
-            )
-          ])
+                            stmt::Expression.new(
+                              expr::Binary.new(
+                                expr::Variable.new(token.new(:identifier, "a", "a", 1)),
+                                token.new(:plus, "+", nil, 1),
+                                expr::Variable.new(token.new(:identifier, "b", "b", 1))
+                              )
+                            )
+                          ])
         )
       ]
     end

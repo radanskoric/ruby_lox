@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative "token"
 
 module RubyLox
@@ -47,8 +48,8 @@ module RubyLox
       "(= #{expr.name} #{expr.value.accept(self)})"
     end
 
-    def visitStmtBlock(stmt)
-      "{ #{stmt.statements.map { |stmt| stmt.accept(self) }.join(",")} }"
+    def visitStmtBlock(stmtBlock)
+      "{ #{stmtBlock.statements.map { |stmt| stmt.accept(self) }.join(",")} }"
     end
 
     def visitStmtClass(stmt)
@@ -72,7 +73,7 @@ module RubyLox
     end
 
     def visitCall(expr)
-      "(call #{expr.callee.accept(self)} (#{expr.arguments.map { |arg| arg.accept(self) }.join(',')}))"
+      "(call #{expr.callee.accept(self)} (#{expr.arguments.map { |arg| arg.accept(self) }.join(",")}))"
     end
 
     def visitStmtFunction(stmt)
