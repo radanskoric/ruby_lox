@@ -8,7 +8,11 @@ module RubyLox
   # Parse the lox grammar, defines as:
   #
   # program        → declaration* EOF ;
-  # declaration    → funDecl | varDecl | statement;
+  # declaration    → classDecl
+  #                | funDecl
+  #                | varDecl
+  #                | statement ;
+  # classDecl      → "class" IDENTIFIER "{" function* "}" ;
   # funDecl        → "fun" function ;
   # function       → IDENTIFIER "(" parameters? ")" block ;
   # parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
@@ -92,15 +96,25 @@ module RubyLox
     ### Grammar methods ###
 
     def declaration
-      begin
-        return function("function") if match(:fun)
-        return var_declaration if match(:var)
-        statement
-      rescue Error => e
-        @errors << e
-        synchronize
-        nil
-      end
+      return classDeclaration() if match(:class)
+      return function("function") if match(:fun)
+      return var_declaration if match(:var)
+      statement
+    rescue Error => e
+      @errors << e
+      synchronize
+      nil
+    end
+
+    def classDeclaration
+      name = consume(:identifier, "Expect class name.")
+      consume(:left_brace, "Expect '{' before class body.")
+
+      methods = []
+      methods << function("method") while !check(:right_brace) && !is_at_end?
+
+      consume(:right_brace, "Expect '}' before class body.")
+      Statements::Class.new(name, methods)
     end
 
     def function(kind)

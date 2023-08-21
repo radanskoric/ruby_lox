@@ -10,10 +10,11 @@ module RubyLox
     Return = Struct.new(:keyword, :value)
     VarDecl = Struct.new(:name, :initializer)
     Block = Struct.new(:statements)
+    Class = Struct.new(:name, :methods)
     If = Struct.new(:condition, :thenBranch, :elseBranch)
     While = Struct.new(:condition, :body)
 
-    [Expression, Function, Print, Return, VarDecl, Block, If, While].each do |statement_class|
+    [Expression, Function, Print, Return, VarDecl, Block, Class, If, While].each do |statement_class|
       klass_name = statement_class.name.split(":").last
       statement_class.class_eval <<~RUBY
         def accept(visitor)

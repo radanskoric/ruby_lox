@@ -51,6 +51,10 @@ module RubyLox
       "{ #{stmt.statements.map { |stmt| stmt.accept(self) }.join(",")} }"
     end
 
+    def visitStmtClass(stmt)
+      "(class #{stmt.name.lexeme} #{stmt.methods.map { |method| method.accept(self) }.join(",")})"
+    end
+
     def visitStmtIf(stmt)
       if stmt.elseBranch
         "(if #{stmt.condition.accept(self)} #{stmt.thenBranch.accept(self)} #{stmt.elseBranch.accept(self)})"

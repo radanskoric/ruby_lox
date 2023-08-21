@@ -216,6 +216,25 @@ RSpec.describe RubyLox::Interpreter do
         expect(output).to eq "global\nglobal"
       end
     end
+
+
+    context "when printing the class name" do
+      let(:source) do
+        <<~CODE
+          class DevonshireCream {
+            serveOn() {
+              return "Scones";
+            }
+          }
+
+          print DevonshireCream; // Prints "DevonshireCream".
+        CODE
+      end
+
+      it "works" do
+        expect(output).to eq "DevonshireCream"
+      end
+    end
   end
 
   context "with invalid source" do

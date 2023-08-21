@@ -91,6 +91,11 @@ module RubyLox
       endScope
     end
 
+    def visitStmtClass(stmt)
+      declare(stmt.name)
+      define(stmt.name)
+    end
+
     def visitStmtIf(stmt)
       resolve(stmt.condition)
       resolve(stmt.thenBranch)

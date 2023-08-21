@@ -586,4 +586,44 @@ RSpec.describe RubyLox::Parser do
       expect(ast).to eq expected
     end
   end
+
+  context "with a class declaration" do
+    let(:source) do
+      <<~CODE
+        class Foo {
+          bar(test) {
+            print test;
+          }
+        }
+      CODE
+    end
+
+    let(:expected) do
+      [
+        stmt::Class.new(
+          token.new(:identifier, "Foo", "Foo", 1),
+          [
+            stmt::Function.new(
+              token.new(:identifier, "bar", "bar", 2),
+              [
+                token.new(:identifier, "test", "test", 2)
+              ],
+              stmt::Block.new(
+                [
+                  stmt::Print.new(
+                    expr::Variable.new(token.new(:identifier, "test", "test", 3))
+                  )
+                ]
+              )
+            )
+          ]
+        )
+      ]
+    end
+
+    it "produces a class declaration" do
+      expect(parser.errors).to eq []
+      expect(ast).to eq expected
+    end
+  end
 end

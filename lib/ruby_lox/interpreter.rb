@@ -56,6 +56,36 @@ module RubyLox
       end
     end
 
+    class LoxClass
+      # @param name [String]
+      def initialize(name)
+        @name = name
+      end
+
+      def to_s
+        @name
+      end
+
+      def call(interpreter, arguments)
+        LoxInstance.new(self)
+      end
+
+      def arity
+        0
+      end
+    end
+
+    class LoxInstance
+      # @param klass [LoxClass]
+      def initialize(klass)
+        @klass = klass
+      end
+
+      def to_s
+        "#{@klass} instance"
+      end
+    end
+
     attr_reader :environment
 
     def initialize(out = STDOUT)
@@ -168,6 +198,12 @@ module RubyLox
     def visitStmtBlock(block)
       executeBlock(block, Environment.new(@environment))
       nil
+    end
+
+    def visitStmtClass(stmt)
+      @environment.define(stmt.name.lexeme, nil)
+      klass = LoxClass.new(stmt.name.lexeme)
+      @environment.assign(stmt.name.lexeme, klass)
     end
 
     def visitStmtIf(stmt)
