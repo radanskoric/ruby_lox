@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative "token"
 require_relative "expressions"
 require_relative "statements"
@@ -35,7 +36,7 @@ module RubyLox
   # expression     → assignment ;
   # ifStmt         → "if" "(" expression ")" statement
   #                  ( "else" statement )? ;
-  # assignment     → IDENTIFIER "=" assignment
+  # assignment     → ( call "." )? IDENTIFIER "=" assignment
   #                | logic_or ;
   # logic_or       → logic_and ( "or" logic_and )* ;
   # logic_and      → equality ( "and" equality )* ;
@@ -45,7 +46,7 @@ module RubyLox
   # factor         → unary ( ( "/" | "*" ) unary )* ;
   # unary          → ( "!" | "-" ) unary
   #                | call ;
-  # call           → primary ( "(" arguments? ")" )* ;
+  # call           → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
   # primary        → NUMBER | STRING | "true" | "false" | "nil"
   #                | "(" expression ")" | IDENTIFIER ;
   # arguments      → expression ( "," expression )* ;
@@ -99,6 +100,7 @@ module RubyLox
       return classDeclaration() if match(:class)
       return function("function") if match(:fun)
       return var_declaration if match(:var)
+
       statement
     rescue Error => e
       @errors << e
@@ -265,6 +267,8 @@ module RubyLox
 
         if expr.is_a?(Expressions::Variable)
           return Expressions::Assign.new(expr.name, value)
+        elsif expr.is_a?(Expressions::Get)
+          return Expressions::Set.new(expr.object, expr.name, value)
         end
 
         fail Error.new(equals, "Invalid assignment target.")
@@ -338,10 +342,17 @@ module RubyLox
     def call
       expr = primary
 
-      while match(:left_paren)
-        args = arguments
-        consume(:right_paren, "Expect ')' after call arguments.")
-        expr = Expressions::Call.new(expr, previous, args)
+      while true
+        if match(:left_paren)
+          args = arguments
+          consume(:right_paren, "Expect ')' after call arguments.")
+          expr = Expressions::Call.new(expr, previous, args)
+        elsif match(:dot)
+          name = consume(:identifier, "Expect property name after '.'.")
+          expr = Expressions::Get.new(expr, name)
+        else
+          break
+        end
       end
 
       expr
@@ -350,7 +361,7 @@ module RubyLox
     def arguments
       args = []
 
-      if(!check(:right_paren))
+      if (!check(:right_paren))
         args << expression
         while match(:comma)
           args << expression
@@ -401,6 +412,7 @@ module RubyLox
     # @param token_type [Symbol]
     def check(*token_types)
       return false if is_at_end?
+
       token_types.include?(peek.type)
     end
 

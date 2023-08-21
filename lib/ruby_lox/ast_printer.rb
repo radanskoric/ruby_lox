@@ -8,16 +8,20 @@ module RubyLox
       "(#{binary.operator.lexeme} #{binary.left.accept(self)} #{binary.right.accept(self)})"
     end
 
+    def visitCall(expr)
+      "(call #{expr.callee.accept(self)} (#{expr.arguments.map { |arg| arg.accept(self) }.join(",")}))"
+    end
+
+    def visitGet(expr)
+      "(get #{expr.object.accept(self)} #{expr.name.lexeme})"
+    end
+
     def visitGrouping(grouping)
       "(group #{grouping.expression.accept(self)})"
     end
 
     def visitLiteral(literal)
       (literal.value || "nil").to_s
-    end
-
-    def visitUnary(unary)
-      "(#{unary.operator.lexeme} #{unary.right.accept(self)})"
     end
 
     def visitVariable(variable)
@@ -68,12 +72,16 @@ module RubyLox
       "(#{logical.operator.lexeme} #{logical.left.accept(self)} #{logical.right.accept(self)})"
     end
 
-    def visitStmtWhile(stmt)
-      "(while #{stmt.condition.accept(self)} #{stmt.body.accept(self)})"
+    def visitSet(expr)
+      "(set #{expr.object.accept(self)} #{expr.name.lexeme} #{expr.value.accept(self)})"
     end
 
-    def visitCall(expr)
-      "(call #{expr.callee.accept(self)} (#{expr.arguments.map { |arg| arg.accept(self) }.join(",")}))"
+    def visitUnary(unary)
+      "(#{unary.operator.lexeme} #{unary.right.accept(self)})"
+    end
+
+    def visitStmtWhile(stmt)
+      "(while #{stmt.condition.accept(self)} #{stmt.body.accept(self)})"
     end
 
     def visitStmtFunction(stmt)

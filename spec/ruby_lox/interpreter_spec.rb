@@ -221,18 +221,31 @@ RSpec.describe RubyLox::Interpreter do
     context "when printing the class name" do
       let(:source) do
         <<~CODE
-          class DevonshireCream {
-            serveOn() {
-              return "Scones";
-            }
-          }
-
+          class DevonshireCream {}
           print DevonshireCream; // Prints "DevonshireCream".
         CODE
       end
 
       it "works" do
         expect(output).to eq "DevonshireCream"
+      end
+    end
+
+    context "when instance properties" do
+      let(:source) do
+        <<~CODE
+          class Foo {}
+          var level1 = Foo();
+          var level2 = Foo();
+
+          level2.value = "we have to go deeper";
+          level1.nextlevel = level2;
+          print level1.nextlevel.value;
+        CODE
+      end
+
+      it "works" do
+        expect(output).to eq "we have to go deeper"
       end
     end
   end

@@ -79,10 +79,23 @@ module RubyLox
       # @param klass [LoxClass]
       def initialize(klass)
         @klass = klass
+        @fields = {}
       end
 
       def to_s
         "#{@klass} instance"
+      end
+
+      def get(name)
+        if @fields.key?(name)
+          @fields[name]
+        else
+          fail SemanticError.new(name, "Undefined property '#{name.lexeme}'.")
+        end
+      end
+
+      def set(name, value)
+        @fields[name] = value
       end
     end
 
@@ -144,17 +157,6 @@ module RubyLox
 
     def visitLiteral(literal)
       literal.value
-    end
-
-    def visitUnary(unary)
-      value = evaluate(unary.right)
-
-      case unary.operator.type
-      when :bang then !value
-      when :minus then
-        checkNumberOperand(unary.operator, value)
-        -value
-      end
     end
 
     def visitVariable(variable)
@@ -226,6 +228,29 @@ module RubyLox
       evaluate(expr.right)
     end
 
+    def visitSet(expr)
+      object = evaluate(expr.object)
+
+      unless object.is_a?(LoxInstance)
+        fail SemanticError.new(expr.name, "Only instances have fields.")
+      end
+
+      value = evaluate(expr.value)
+      object.set(expr.name, value)
+      value
+    end
+
+    def visitUnary(unary)
+    value = evaluate(unary.right)
+
+      case unary.operator.type
+      when :bang then !value
+      when :minus then
+        checkNumberOperand(unary.operator, value)
+        -value
+      end
+    end
+
     def visitCall(expr)
       callee = evaluate(expr.callee)
       arguments = expr.arguments.map { |arg| evaluate(arg) }
@@ -233,6 +258,15 @@ module RubyLox
       checkValueIsCallable(expr.paren, callee)
       checkArityMatches(expr.paren, callee, arguments)
       callee.call(self, arguments)
+    end
+
+    def visitGet(expr)
+      object = evaluate(expr.object)
+      if (object.is_a?(LoxInstance))
+        return object.get(expr.name)
+      end
+
+      fail SemanticError.new(expr.name, "Only instances have properties.")
     end
 
     def visitStmtFunction(stmt)

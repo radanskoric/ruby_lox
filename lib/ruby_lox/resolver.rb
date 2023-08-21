@@ -43,10 +43,6 @@ module RubyLox
       # no op
     end
 
-    def visitUnary(unary)
-      resolve(unary.right)
-    end
-
     def visitVariable(variable)
       if @scopes.any? && @scopes.last[variable.name] == false
         fail LoxCompilerError.new(variable.name, "Can't read local variable in its own initializer.")
@@ -108,9 +104,22 @@ module RubyLox
       resolve(expr.right)
     end
 
+    def visitSet(expr)
+      resolve(expr.value)
+      resolve(expr.object)
+    end
+
+    def visitUnary(unary)
+      resolve(unary.right)
+    end
+
     def visitCall(expr)
       resolve(expr.callee)
       expr.arguments.each { |arg| resolve(arg) }
+    end
+
+    def visitGet(expr)
+      resolve(expr.object)
     end
 
     def visitStmtFunction(stmt)

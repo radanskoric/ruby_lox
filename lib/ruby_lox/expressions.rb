@@ -6,14 +6,16 @@ module RubyLox
   module Expressions
     Binary = Struct.new(:left, :operator, :right)
     Call = Struct.new(:callee, :paren, :arguments)
-    Unary = Struct.new(:operator, :right)
+    Get = Struct.new(:object, :name)
     Grouping = Struct.new(:expression)
     Literal = Struct.new(:value)
     Logical = Struct.new(:left, :operator, :right)
+    Set = Struct.new(:object, :name, :value)
+    Unary = Struct.new(:operator, :right)
     Variable = Struct.new(:name)
     Assign = Struct.new(:name, :value)
 
-    [Binary, Call, Unary, Grouping, Literal, Logical, Variable, Assign].each do |expression_class|
+    [Binary, Call, Get, Grouping, Literal, Logical, Set, Unary, Variable, Assign].each do |expression_class|
       klass_name = expression_class.name.split(":").last
       expression_class.class_eval <<~RUBY
         def accept(visitor)
