@@ -12,7 +12,8 @@ module RubyLox
     FUNCTION_TYPE = {
       none: 0,
       function: 1,
-      method: 2,
+      initializer: 2,
+      method: 3,
     }.freeze
 
     CLASS_TYPE = {
@@ -68,6 +69,7 @@ module RubyLox
 
     def visitStmtReturn(stmt)
       fail(Error.new(stmt.keyword, "Can't return from top-level code.")) if @currentFunction == FUNCTION_TYPE[:none]
+      fail(Error.new(stmt.keyword, "Can't return a value from an initializer.")) if @currentFunction == FUNCTION_TYPE[:initializer]
 
       resolve(stmt.value) if stmt.value
     end
@@ -106,7 +108,7 @@ module RubyLox
       @scopes.last["this"] = true
 
       stmt.methods.each do |method|
-        resolveFunction(method, FUNCTION_TYPE[:method])
+        resolveFunction(method, FUNCTION_TYPE[method.name.lexeme == "init" ? :initializer : :method])
       end
 
       endScope
@@ -188,7 +190,7 @@ module RubyLox
 
     def resolveFunction(function, type)
       enclosingFunction = @currentFunction
-      @currentFunction = function
+      @currentFunction = type
 
       beginScope
       function.params.each do |param|

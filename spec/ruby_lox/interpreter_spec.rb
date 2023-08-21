@@ -273,6 +273,29 @@ RSpec.describe RubyLox::Interpreter do
         expect(output).to eq "Jane"
       end
     end
+
+    context "when a class has an init method" do
+      let(:source) do
+        <<~CODE
+          class Greeting {
+            init(salutation) {
+              this.salutation = salutation;
+            }
+
+            greet(name) {
+              print this.salutation + " " + name + "!";
+            }
+          }
+
+          var warmGreeting = Greeting("Hello good friend");
+          warmGreeting.greet("John");
+        CODE
+      end
+
+      it "uses it to initialize the object" do
+        expect(output).to eq "Hello good friend John!"
+      end
+    end
   end
 
   context "with invalid source" do
@@ -344,6 +367,14 @@ RSpec.describe RubyLox::Interpreter do
 
       it "raises a lox error" do
         expect { result }.to raise_error(RubyLox::Resolver::Error, /Can't use 'this' outside of a class/)
+      end
+    end
+
+    context "when returning a value from an initializer" do
+      let(:source) { "class Foo { init() { return 42; } }" }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(RubyLox::Resolver::Error, /Can't return a value from an initializer/)
       end
     end
   end

@@ -30,15 +30,17 @@ module RubyLox
     class LoxFunction
       # @param declaration [RubyLox::Statements::Functions]
       # @param closure [RubyLox::Environment]
-      def initialize(declaration, closure)
+      # @param isInitializer [Boolean]
+      def initialize(declaration, closure, isInitializer)
         @declaration = declaration
         @closure = closure
+        @isInitializer = isInitializer
       end
 
       def bind(instance)
         env = Environment.new(@closure)
         env.define("this", instance)
-        LoxFunction.new(@declaration, env)
+        LoxFunction.new(@declaration, env, @isInitializer)
       end
 
       def call(interpreter, arguments)
@@ -48,8 +50,11 @@ module RubyLox
         end
 
         interpreter.executeBlock(@declaration.body, Environment.new(env))
+        return @closure.getAt(0, "this") if @isInitializer
         nil
       rescue ReturnValue => e
+        return @closure.getAt(0, "this") if @isInitializer
+
         e.value
       end
 
@@ -73,12 +78,18 @@ module RubyLox
         @name
       end
 
-      def call(_interpreter, _arguments)
-        LoxInstance.new(self)
+      def call(interpreter, arguments)
+        instance = LoxInstance.new(self)
+
+        initializer = findMethod("init")
+        initializer.bind(instance).call(interpreter, arguments) if initializer
+
+        instance
       end
 
       def arity
-        0
+        initializer = findMethod("init")
+        initializer ? initializer.arity : 0
       end
 
       def findMethod(name)
@@ -218,7 +229,8 @@ module RubyLox
       @environment.define(stmt.name.lexeme, nil)
 
       methods = stmt.methods.each_with_object({}) do |method, hash|
-        hash[method.name.lexeme] = LoxFunction.new(method, @environment)
+        fnName = method.name.lexeme
+        hash[fnName] = LoxFunction.new(method, @environment, fnName == "init")
       end
 
       klass = LoxClass.new(stmt.name.lexeme, methods)
@@ -291,7 +303,7 @@ module RubyLox
     end
 
     def visitStmtFunction(stmt)
-      function = LoxFunction.new(stmt, @environment)
+      function = LoxFunction.new(stmt, @environment, false)
       @environment.define(stmt.name.lexeme, function)
       nil
     end
