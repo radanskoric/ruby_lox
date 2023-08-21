@@ -231,7 +231,7 @@ RSpec.describe RubyLox::Interpreter do
       end
     end
 
-    context "when instance properties" do
+    context "when instance properties are set and accessed" do
       let(:source) do
         <<~CODE
           class Foo {}
@@ -246,6 +246,31 @@ RSpec.describe RubyLox::Interpreter do
 
       it "works" do
         expect(output).to eq "we have to go deeper"
+      end
+    end
+
+    context "when instance methods are fetched and assigned" do
+      let(:source) do
+        <<~CODE
+          class Person {
+            sayName() {
+              print this.name;
+            }
+          }
+
+          var jane = Person();
+          jane.name = "Jane";
+
+          var bill = Person();
+          bill.name = "Bill";
+
+          bill.sayName = jane.sayName;
+          bill.sayName();
+        CODE
+      end
+
+      it "retains the reference to this" do
+        expect(output).to eq "Jane"
       end
     end
   end
@@ -311,6 +336,14 @@ RSpec.describe RubyLox::Interpreter do
 
       it "raises a lox error" do
         expect { result }.to raise_error(RubyLox::Resolver::Error, /Can't return from top-level code/)
+      end
+    end
+
+    context "when accessing this outside a class" do
+      let(:source) { "print this;" }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(RubyLox::Resolver::Error, /Can't use 'this' outside of a class/)
       end
     end
   end

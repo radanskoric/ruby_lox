@@ -11,11 +11,12 @@ module RubyLox
     Literal = Struct.new(:value)
     Logical = Struct.new(:left, :operator, :right)
     Set = Struct.new(:object, :name, :value)
+    This = Struct.new(:keyword)
     Unary = Struct.new(:operator, :right)
     Variable = Struct.new(:name)
     Assign = Struct.new(:name, :value)
 
-    [Binary, Call, Get, Grouping, Literal, Logical, Set, Unary, Variable, Assign].each do |expression_class|
+    [Binary, Call, Get, Grouping, Literal, Logical, Set, This, Unary, Variable, Assign].each do |expression_class|
       klass_name = expression_class.name.split(":").last
       expression_class.class_eval <<~RUBY
         def accept(visitor)

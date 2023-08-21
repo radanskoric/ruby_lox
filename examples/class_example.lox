@@ -1,7 +1,12 @@
-class Bagel {}
+class Bagel {
+  eat() {
+    print "Crunch crunch crunch";
+  }
+}
 var bagel = Bagel();
 print bagel; // Prints "Bagel instance".
 
 
 bagel.seasoning = "salt";
 print bagel.seasoning;
+bagel.eat();

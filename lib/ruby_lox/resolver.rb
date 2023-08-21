@@ -11,13 +11,20 @@ module RubyLox
     # In the book, jlox uses an enum. Here a hash will pretend it's an enum.
     FUNCTION_TYPE = {
       none: 0,
-      function: 1
+      function: 1,
+      method: 2,
+    }.freeze
+
+    CLASS_TYPE = {
+      none: 0,
+      class: 1,
     }.freeze
 
     def initialize(interpreter)
       @interpreter = interpreter
       @scopes = []
       @currentFunction = FUNCTION_TYPE[:none]
+      @currentClass = CLASS_TYPE[:none]
     end
 
     def resolve(statement_or_statements)
@@ -44,7 +51,7 @@ module RubyLox
     end
 
     def visitVariable(variable)
-      if @scopes.any? && @scopes.last[variable.name] == false
+      if @scopes.any? && @scopes.last[variable.name.lexeme] == false
         fail LoxCompilerError.new(variable.name, "Can't read local variable in its own initializer.")
       end
 
@@ -89,8 +96,22 @@ module RubyLox
     end
 
     def visitStmtClass(stmt)
+      enclosingClass = @currentClass
+      @currentClass = CLASS_TYPE[:class]
+
       declare(stmt.name)
       define(stmt.name)
+
+      beginScope
+      @scopes.last["this"] = true
+
+      stmt.methods.each do |method|
+        resolveFunction(method, FUNCTION_TYPE[:method])
+      end
+
+      endScope
+
+      @currentClass = enclosingClass
     end
 
     def visitStmtIf(stmt)
@@ -107,6 +128,14 @@ module RubyLox
     def visitSet(expr)
       resolve(expr.value)
       resolve(expr.object)
+    end
+
+    def visitThis(expr)
+      if @currentClass == CLASS_TYPE[:none]
+        fail(Error.new(expr.keyword, "Can't use 'this' outside of a class."))
+      end
+
+      resolveLocal(expr, expr.keyword)
     end
 
     def visitUnary(unary)
@@ -141,25 +170,25 @@ module RubyLox
     def declare(name)
       return if @scopes.empty?
 
-      fail(Error.new(name, "Already a variable with this name in this scope.")) if @scopes.last.key?(name)
+      fail(Error.new(name, "Already a variable with this name in this scope.")) if @scopes.last.key?(name.lexeme)
 
-      @scopes.last[name] = false
+      @scopes.last[name.lexeme] = false
     end
 
     def define(name)
       return if @scopes.empty?
 
-      @scopes.last[name] = true
+      @scopes.last[name.lexeme] = true
     end
 
     def resolveLocal(expr, name)
-      _scope, index = @scopes.reverse_each.with_index.find { |scope, _index| scope.key?(name) }
+      _scope, index = @scopes.reverse_each.with_index.find { |scope, _index| scope.key?(name.lexeme) }
       @interpreter.resolve(expr, index) if index
     end
 
     def resolveFunction(function, type)
       enclosingFunction = @currentFunction
-      @currentFunction = type
+      @currentFunction = function
 
       beginScope
       function.params.each do |param|

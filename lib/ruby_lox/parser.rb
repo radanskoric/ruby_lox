@@ -384,6 +384,10 @@ module RubyLox
         return Expressions::Literal.new(previous.literal)
       end
 
+      if match(:this)
+        return Expressions::This.new(previous)
+      end
+
       if match(:identifier)
         return Expressions::Variable.new(previous)
       end

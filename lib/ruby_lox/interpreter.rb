@@ -35,6 +35,12 @@ module RubyLox
         @closure = closure
       end
 
+      def bind(instance)
+        env = Environment.new(@closure)
+        env.define("this", instance)
+        LoxFunction.new(@declaration, env)
+      end
+
       def call(interpreter, arguments)
         env = Environment.new(@closure)
         @declaration.params.each_with_index do |param, index|
@@ -58,8 +64,9 @@ module RubyLox
 
     class LoxClass
       # @param name [String]
-      def initialize(name)
+      def initialize(name, methods)
         @name = name
+        @methods = methods
       end
 
       def to_s
@@ -72,6 +79,10 @@ module RubyLox
 
       def arity
         0
+      end
+
+      def findMethod(name)
+        @methods[name]
       end
     end
 
@@ -88,10 +99,11 @@ module RubyLox
 
       def get(name)
         if @fields.key?(name)
-          @fields[name]
-        else
-          fail SemanticError.new(name, "Undefined property '#{name.lexeme}'.")
+          return @fields[name]
         end
+
+        @klass.findMethod(name.lexeme).bind(self) ||
+          fail(SemanticError.new(name, "Undefined property '#{name.lexeme}'."))
       end
 
       def set(name, value)
@@ -204,7 +216,12 @@ module RubyLox
 
     def visitStmtClass(stmt)
       @environment.define(stmt.name.lexeme, nil)
-      klass = LoxClass.new(stmt.name.lexeme)
+
+      methods = stmt.methods.each_with_object({}) do |method, hash|
+        hash[method.name.lexeme] = LoxFunction.new(method, @environment)
+      end
+
+      klass = LoxClass.new(stmt.name.lexeme, methods)
       @environment.assign(stmt.name.lexeme, klass)
     end
 
@@ -240,8 +257,12 @@ module RubyLox
       value
     end
 
+    def visitThis(expr)
+      lookUpVariable(expr.keyword, expr)
+    end
+
     def visitUnary(unary)
-    value = evaluate(unary.right)
+      value = evaluate(unary.right)
 
       case unary.operator.type
       when :bang then !value
