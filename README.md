@@ -2,7 +2,15 @@
 
 The first implementation of the educational Lox language in the book
 Crafting intepreters (https://craftinginterpreters.com) is done in Java.
-As an excercise, I'm doing it in Ruby instead.
+As an excercise, I did it in **Ruby** instead.
+
+While doing that I did my best to follow the naming and style convetions from
+the book which is why the code sometimes looks a bit like Java, not Ruby. This
+is for pragmatic reasons: to make it easier to find the relevant part in
+the book when looking at the code.
+
+The implementation is now complete, all of the language features from the
+book are implemented.
 
 ## Usage
 
@@ -12,23 +20,10 @@ After that you can use `bin/run` in 2 different ways:
 - `bin/run` without arguments will run an interactive console that will evaluate Lox commands. Beware that you'll need to use `print` to see the output.
 - `bin/run [script]` will run a lox script. There are several in examples folder, for example `bin/run examples/fibonacci.lox`
 
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rspec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To use it as a Lox program interpreter run `bin/run`. Pass the path to a file to have it intepret it. If you pass no arguments
-you will get an interactive prompt.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/ruby_lox. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/ruby_lox/blob/master/CODE_OF_CONDUCT.md).
+It's just a personal learning project, I expect no contributions.
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the RubyLox project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/ruby_lox/blob/master/CODE_OF_CONDUCT.md).
