@@ -38,13 +38,12 @@ module RubyLox
       "#{@type} #{@lexeme} #{@literal}"
     end
 
+    # We want to be able to compare two ASTs so we need this looser method.
+    # But for hash lookup we need to distinguish between tokens with the same
+    # source but in different location. Therefore we will leave `eql?` and `hash`
+    # unmodified.
     def ==(other)
       self.type == other.type && self.literal == other.literal
-    end
-    alias eql? ==
-
-    def hash
-      [type, literal].hash
     end
   end
 end

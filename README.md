@@ -6,7 +6,11 @@ As an excercise, I'm doing it in Ruby instead.
 
 ## Usage
 
-TODO: Write usage instructions here
+Clone the repo and install the gems with `bundle`.
+
+After that you can use `bin/run` in 2 different ways:
+- `bin/run` without arguments will run an interactive console that will evaluate Lox commands. Beware that you'll need to use `print` to see the output.
+- `bin/run [script]` will run a lox script. There are several in examples folder, for example `bin/run examples/fibonacci.lox`
 
 ## Development
 

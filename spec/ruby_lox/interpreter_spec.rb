@@ -155,6 +155,24 @@ RSpec.describe RubyLox::Interpreter do
       end
     end
 
+    context "with a for loop" do
+      let(:source) do
+        <<~CODE
+          for (
+            var i = 3;
+            i > 0;
+            i = i - 1
+          ) {
+            print i;
+          }
+        CODE
+      end
+
+      it "runs the for loop" do
+        expect(output).to eq "3\n2\n1"
+      end
+    end
+
     context "with a native function call" do
       let(:source) { "print clock();" }
 

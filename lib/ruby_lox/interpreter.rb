@@ -117,8 +117,8 @@ module RubyLox
       end
 
       def get(name)
-        if @fields.key?(name)
-          return @fields[name]
+        if @fields.key?(name.literal)
+          return @fields[name.literal]
         end
 
         @klass.findMethod(name.lexeme).bind(self) ||
@@ -126,7 +126,7 @@ module RubyLox
       end
 
       def set(name, value)
-        @fields[name] = value
+        @fields[name.literal] = value
       end
     end
 
