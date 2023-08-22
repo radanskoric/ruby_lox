@@ -603,6 +603,7 @@ RSpec.describe RubyLox::Parser do
       [
         stmt::Class.new(
           token.new(:identifier, "Foo", "Foo", 1),
+          nil,
           [
             stmt::Function.new(
               token.new(:identifier, "bar", "bar", 2),
@@ -618,6 +619,25 @@ RSpec.describe RubyLox::Parser do
               )
             )
           ]
+        )
+      ]
+    end
+
+    it "produces a class declaration" do
+      expect(parser.errors).to eq []
+      expect(ast).to eq expected
+    end
+  end
+
+  context "with a class that has a superclass" do
+    let(:source) { "class Foo < Bar {}" }
+
+    let(:expected) do
+      [
+        stmt::Class.new(
+          token.new(:identifier, "Foo", "Foo", 1),
+          expr::Variable.new(token.new(:identifier, "Bar", "Bar", 1)),
+          []
         )
       ]
     end

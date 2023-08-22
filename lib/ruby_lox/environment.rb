@@ -4,6 +4,8 @@ require_relative "errors"
 
 module RubyLox
   class Environment
+    attr_reader :enclosing
+
     def initialize(enclosing = nil)
       @values = {}
       @enclosing = enclosing

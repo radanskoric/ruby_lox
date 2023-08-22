@@ -296,6 +296,36 @@ RSpec.describe RubyLox::Interpreter do
         expect(output).to eq "Hello good friend John!"
       end
     end
+
+    context "when calling super from a method declared on parent class" do
+      let(:source) do
+        <<~CODE
+          class A {
+            method() {
+              print "A method";
+            }
+          }
+
+          class B < A {
+            method() {
+              print "B method";
+            }
+
+            test() {
+              super.method();
+            }
+          }
+
+          class C < B {}
+
+          C().test();
+        CODE
+      end
+
+      it "resolves super to the parent class from where the method was declared" do
+        expect(output).to eq "A method"
+      end
+    end
   end
 
   context "with invalid source" do
@@ -375,6 +405,47 @@ RSpec.describe RubyLox::Interpreter do
 
       it "raises a lox error" do
         expect { result }.to raise_error(RubyLox::Resolver::Error, /Can't return a value from an initializer/)
+      end
+    end
+
+    context "when inheriting from yourself" do
+      let(:source) { "class Foo < Foo {}" }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(RubyLox::Resolver::Error, /A class can't inherit from itself/)
+      end
+    end
+
+    context "when inheriting from something that's not a class" do
+      let(:source) { "var Bar = 42;class Foo < Bar {}" }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(RubyLox::Interpreter::SemanticError, /Superclass must be a class/)
+      end
+    end
+
+    context "when calling super from outside a class" do
+      let(:source) { "super.notEvenInAClass();" }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(RubyLox::Resolver::Error, /Can't use 'super' outside of a class/)
+      end
+    end
+
+    context "when calling super from a class without a superclass" do
+      let(:source) do
+        <<~CODE
+          class Eclair {
+            cook() {
+              super.cook();
+              print "Pipe full of crème pâtissière.";
+            }
+          }
+        CODE
+      end
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(RubyLox::Resolver::Error, /Can't use 'super' in a class with no superclass/)
       end
     end
   end

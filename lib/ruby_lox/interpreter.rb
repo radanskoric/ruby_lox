@@ -51,6 +51,7 @@ module RubyLox
 
         interpreter.executeBlock(@declaration.body, Environment.new(env))
         return @closure.getAt(0, "this") if @isInitializer
+
         nil
       rescue ReturnValue => e
         return @closure.getAt(0, "this") if @isInitializer
@@ -69,8 +70,11 @@ module RubyLox
 
     class LoxClass
       # @param name [String]
-      def initialize(name, methods)
+      # @param superclass [LoxClass, nil]
+      # @param methods [Hash<String, LoxFunction>]
+      def initialize(name, superclass, methods)
         @name = name
+        @superclass = superclass
         @methods = methods
       end
 
@@ -93,7 +97,11 @@ module RubyLox
       end
 
       def findMethod(name)
-        @methods[name]
+        if @methods.key?(name)
+          @methods[name]
+        else
+          @superclass&.findMethod(name)
+        end
       end
     end
 
@@ -228,12 +236,26 @@ module RubyLox
     def visitStmtClass(stmt)
       @environment.define(stmt.name.lexeme, nil)
 
+      superclass = nil
+      if stmt.superclass
+        superclass = evaluate(stmt.superclass)
+        unless superclass.is_a?(LoxClass)
+          fail SemanticError.new(stmt.superclass.name, "Superclass must be a class.")
+        end
+
+        @environment = Environment.new(@environment)
+        @environment.define("super", superclass)
+      end
+
       methods = stmt.methods.each_with_object({}) do |method, hash|
         fnName = method.name.lexeme
         hash[fnName] = LoxFunction.new(method, @environment, fnName == "init")
       end
 
-      klass = LoxClass.new(stmt.name.lexeme, methods)
+      klass = LoxClass.new(stmt.name.lexeme, superclass, methods)
+
+      @environment = @environment.enclosing if stmt.superclass
+
       @environment.assign(stmt.name.lexeme, klass)
     end
 
@@ -267,6 +289,18 @@ module RubyLox
       value = evaluate(expr.value)
       object.set(expr.name, value)
       value
+    end
+
+    def visitSuper(expr)
+      distance = @locals[expr]
+
+      superclass = @environment.getAt(distance, "super")
+      object = @environment.getAt(distance - 1, "this")
+      method = superclass.findMethod(expr.method.lexeme)
+
+      fail SemanticError.new(expr.method, "Undefined property #{expr.method.lexeme}") unless method
+
+      method.bind(object)
     end
 
     def visitThis(expr)

@@ -1,12 +1,21 @@
-class Bagel {
+class BreadRoll {
+  bake() {
+    print "Shape and bake in the oven.";
+  }
+}
+
+class Bagel < BreadRoll {
+  init() {
+    this.seasoning = "salt";
+  }
+
   eat() {
-    print "Crunch crunch crunch";
+    print "Crunch crunch crunch, it's delicious with " + this.seasoning + ".";
   }
 }
 var bagel = Bagel();
-print bagel; // Prints "Bagel instance".
+bagel.bake();
 
 
-bagel.seasoning = "salt";
-print bagel.seasoning;
+bagel.seasoning = "salt and pepper";
 bagel.eat();

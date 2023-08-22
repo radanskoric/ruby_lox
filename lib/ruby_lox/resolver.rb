@@ -19,6 +19,7 @@ module RubyLox
     CLASS_TYPE = {
       none: 0,
       class: 1,
+      subclass: 2,
     }.freeze
 
     def initialize(interpreter)
@@ -69,7 +70,9 @@ module RubyLox
 
     def visitStmtReturn(stmt)
       fail(Error.new(stmt.keyword, "Can't return from top-level code.")) if @currentFunction == FUNCTION_TYPE[:none]
-      fail(Error.new(stmt.keyword, "Can't return a value from an initializer.")) if @currentFunction == FUNCTION_TYPE[:initializer]
+
+      fail(Error.new(stmt.keyword,
+                     "Can't return a value from an initializer.")) if @currentFunction == FUNCTION_TYPE[:initializer]
 
       resolve(stmt.value) if stmt.value
     end
@@ -104,6 +107,18 @@ module RubyLox
       declare(stmt.name)
       define(stmt.name)
 
+      if stmt.superclass
+        if stmt.name.lexeme == stmt.superclass.name.lexeme
+          fail(Error.new(stmt.superclass.name, "A class can't inherit from itself."))
+        else
+          @currentClass = CLASS_TYPE[:subclass]
+          resolve(stmt.superclass)
+
+          beginScope
+          @scopes.last["super"] = true
+        end
+      end
+
       beginScope
       @scopes.last["this"] = true
 
@@ -112,6 +127,8 @@ module RubyLox
       end
 
       endScope
+
+      endScope if stmt.superclass
 
       @currentClass = enclosingClass
     end
@@ -130,6 +147,16 @@ module RubyLox
     def visitSet(expr)
       resolve(expr.value)
       resolve(expr.object)
+    end
+
+    def visitSuper(expr)
+      if @currentClass == CLASS_TYPE[:none]
+        fail(Error.new(expr.keyword, "Can't use 'super' outside of a class."))
+      elsif @currentClass != CLASS_TYPE[:subclass]
+        fail(Error.new(expr.keyword, "Can't use 'super' in a class with no superclass."))
+      end
+
+      resolveLocal(expr, expr.keyword)
     end
 
     def visitThis(expr)

@@ -13,7 +13,7 @@ module RubyLox
   #                | funDecl
   #                | varDecl
   #                | statement ;
-  # classDecl      → "class" IDENTIFIER "{" function* "}" ;
+  # classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
   # funDecl        → "fun" function ;
   # function       → IDENTIFIER "(" parameters? ")" block ;
   # parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
@@ -47,8 +47,9 @@ module RubyLox
   # unary          → ( "!" | "-" ) unary
   #                | call ;
   # call           → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
-  # primary        → NUMBER | STRING | "true" | "false" | "nil"
-  #                | "(" expression ")" | IDENTIFIER ;
+  # primary        → NUMBER | STRING | "true" | "false" | "nil" | "this"
+  #                | "(" expression ")" | IDENTIFIER
+  #                | "super" "." IDENTIFIER ;
   # arguments      → expression ( "," expression )* ;
   class Parser
     class Error < LoxCompileError
@@ -110,13 +111,21 @@ module RubyLox
 
     def classDeclaration
       name = consume(:identifier, "Expect class name.")
+
+      superclass = nil
+      if match(:less)
+        superclass = Expressions::Variable.new(
+          consume(:identifier, "Expect superclass name.")
+        )
+      end
+
       consume(:left_brace, "Expect '{' before class body.")
 
       methods = []
       methods << function("method") while !check(:right_brace) && !is_at_end?
 
       consume(:right_brace, "Expect '}' before class body.")
-      Statements::Class.new(name, methods)
+      Statements::Class.new(name, superclass, methods)
     end
 
     def function(kind)
@@ -396,6 +405,13 @@ module RubyLox
         expr = expression
         consume(:right_paren, "Expect ')' after expression.")
         return Expressions::Grouping.new(expr)
+      end
+
+      if match(:super)
+        keyword = previous
+        consume(:dot, "Expect '.' after 'super'.")
+        method = consume(:identifier, "Expect superclass method name.")
+        return Expressions::Super.new(keyword, method)
       end
 
       fail Error.new(peek, "Expect expression.")
