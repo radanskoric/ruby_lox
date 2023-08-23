@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# typed: true
 
 require_relative "ruby_lox/version"
 require_relative "ruby_lox/scanner"

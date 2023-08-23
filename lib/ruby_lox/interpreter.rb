@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# typed: true
 
 require_relative "errors"
 require_relative "environment"
@@ -40,7 +41,7 @@ module RubyLox
       def bind(instance)
         env = Environment.new(@closure)
         env.define("this", instance)
-        LoxFunction.new(@declaration, env, @isInitializer)
+        self.class.new(@declaration, env, @isInitializer)
       end
 
       def call(interpreter, arguments)
@@ -65,6 +66,20 @@ module RubyLox
 
       def to_s
         "<fn #{@declaration.name.lexeme}>"
+      end
+    end
+
+    class ClockFunction
+      def arity
+        0
+      end
+
+      def call(_interpreter, _args)
+        Time.now.to_f
+      end
+
+      def to_s
+        "<native fn clock>"
       end
     end
 
@@ -135,19 +150,7 @@ module RubyLox
     def initialize(out = STDOUT)
       @out = out
       @globals = @environment = Environment.new
-      @environment.define("clock", Object.new.tap do |obj|
-        def obj.arity
-          0
-        end
-
-        def obj.call(_interpreter, _args)
-          Time.now.to_f
-        end
-
-        def obj.to_s
-          "<native fn clock>"
-        end
-      end)
+      @environment.define("clock", ClockFunction.new)
       @locals = {}
     end
 

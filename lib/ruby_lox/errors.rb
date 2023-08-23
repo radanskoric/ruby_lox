@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# typed: true
 
 module RubyLox
   # Base error for all compile time errors.

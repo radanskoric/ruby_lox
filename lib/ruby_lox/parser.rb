@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# typed: true
 
 require_relative "token"
 require_relative "expressions"
@@ -204,7 +205,7 @@ module RubyLox
       if increment
         body = Statements::Block.new([body, Statements::Expression.new(increment)])
       end
-      condition ||= expr::Literal.new(true)
+      condition ||= Expressions::Literal.new(true)
       body = Statements::While.new(condition, body)
       if initializer
         body = Statements::Block.new([initializer, body])
@@ -330,7 +331,7 @@ module RubyLox
 
     def binary_expression(lower_method, operators)
       expr = lower_method.call
-      while match(*operators)
+      while match(operators)
         operator = previous
         right = lower_method.call
         expr = Expressions::Binary.new(expr, operator, right)
@@ -339,7 +340,7 @@ module RubyLox
     end
 
     def unary
-      if match(:bang, :minus)
+      if match([:bang, :minus])
         operator = previous
         right = unary
         Expressions::Unary.new(operator, right)
@@ -389,7 +390,7 @@ module RubyLox
       return Expressions::Literal.new(true) if match(:true)
       return Expressions::Literal.new(nil) if match(:nil)
 
-      if match(:number, :string)
+      if match([:number, :string])
         return Expressions::Literal.new(previous.literal)
       end
 
@@ -419,9 +420,9 @@ module RubyLox
 
     ### Helper methods ###
 
-    # @param token_types [Array<Symbol>] list of token types looking for
-    def match(*token_types)
-      if check(*token_types)
+    # @param token_types [Array<Symbol>, Symbol] list of token types looking for
+    def match(token_types)
+      if check(token_types)
         advance
         true
       else
@@ -429,11 +430,11 @@ module RubyLox
       end
     end
 
-    # @param token_type [Symbol]
-    def check(*token_types)
+    # @param token_types [Array<Symbol>, Symbol]
+    def check(token_types)
       return false if is_at_end?
 
-      token_types.include?(peek.type)
+      Array(token_types).include?(peek.type)
     end
 
     def peek

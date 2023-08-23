@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+# typed: true
+
+require 'sorbet-runtime'
 
 require_relative "ast_printer"
 
@@ -15,7 +18,7 @@ module RubyLox
     While = Struct.new(:condition, :body)
 
     [Expression, Function, Print, Return, VarDecl, Block, Class, If, While].each do |statement_class|
-      klass_name = statement_class.name.split(":").last
+      klass_name = T.must(statement_class.name).split(":").last
       statement_class.class_eval <<~RUBY
         def accept(visitor)
           visitor.visitStmt#{klass_name}(self)

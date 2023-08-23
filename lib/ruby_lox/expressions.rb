@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+# typed: true
+
+require 'sorbet-runtime'
 
 require_relative "ast_printer"
 
@@ -19,7 +22,7 @@ module RubyLox
 
     [Binary, Call, Get, Grouping, Literal, Logical, Set,
      Super, This, Unary, Variable, Assign].each do |expression_class|
-      klass_name = expression_class.name.split(":").last
+      klass_name = T.must(expression_class.name).split(":").last
       expression_class.class_eval <<~RUBY
         def accept(visitor)
           visitor.visit#{klass_name}(self)
