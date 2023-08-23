@@ -7,6 +7,7 @@ require "stringio"
 require "lib/ruby_lox/interpreter"
 require "lib/ruby_lox/scanner"
 require "lib/ruby_lox/parser"
+require "lib/ruby_lox/resolver"
 require "lib/ruby_lox/expressions"
 require "lib/ruby_lox/token"
 
@@ -368,6 +369,14 @@ RSpec.describe RubyLox::Interpreter do
 
       it "raises a lox error" do
         expect { result }.to raise_error(described_class::SemanticError, /must be two numbers or two strings/)
+      end
+    end
+
+    context "when trying to access a variable in its own initializer" do
+      let(:source) { "{ var a = a + 1; }" }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(RubyLox::Resolver::Error, /read local variable in its own initializer/)
       end
     end
 
