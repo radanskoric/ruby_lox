@@ -14,3 +14,6 @@ I kept track of all the bugs that were found by Sorbet while adding it:
 
 - `RubyLox::Parser::ForStatement` had a place where it was referencing `expr::Literal` instead of `Expressions::Literal`. This was a bug caused by copy pasting form a place where `expr` was defined. I didn't have a test for this because it's kind of tricky to test. It's used to created a default for loop condition when it's missing. By the language spec the default condition is just `true` which makes it an infinite loop. Lox has no way to forcifully break out of a loop which means a clean test is impossible without modifying the language.
 
+### Adding `typed: strict` to some files including the most complex file: interpreter.rb
+
+This didn't uncover any new bugs.
