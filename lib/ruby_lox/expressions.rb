@@ -20,8 +20,17 @@ module RubyLox
     Variable = Struct.new(:name)
     Assign = Struct.new(:name, :value)
 
-    [Binary, Call, Get, Grouping, Literal, Logical, Set,
-     Super, This, Unary, Variable, Assign].each do |expression_class|
+    # At first I tried to put the list of all classes in a constant and splat it below
+    # but sorbet can't parse the splat operator.
+    SORBET_ANY = T.type_alias {
+      T.any(Binary, Call, Get, Grouping, Literal, Logical, Set,
+            Super, This, Unary, Variable, Assign)
+    }
+
+    [
+      Binary, Call, Get, Grouping, Literal, Logical, Set,
+      Super, This, Unary, Variable, Assign
+    ].each do |expression_class|
       klass_name = T.must(expression_class.name).split(":").last
       expression_class.class_eval <<~RUBY
         def accept(visitor)

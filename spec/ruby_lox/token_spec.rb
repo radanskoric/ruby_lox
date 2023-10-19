@@ -32,7 +32,7 @@ RSpec.describe RubyLox::Token do
     subject { token == other }
 
     context "when other is identical by type and literal" do
-      let(:other) { described_class.new(type, nil, literal, nil) }
+      let(:other) { described_class.new(type, "1", literal, 1) }
 
       it { is_expected.to eq(true) }
     end

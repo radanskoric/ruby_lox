@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: strict
 
 require_relative "token"
 require_relative "expressions"
@@ -53,35 +53,42 @@ module RubyLox
   #                | "super" "." IDENTIFIER ;
   # arguments      → expression ( "," expression )* ;
   class Parser
+    extend T::Sig
     class Error < LoxCompileError
+      sig { params(token: RubyLox::Token, message: String).void }
       def initialize(token, message)
         super
         @token = token
         @message = message
       end
 
+      sig { returns(String) }
       def to_s
         "Error on line #{@token.line}: #{@message}"
       end
     end
 
-    STATEMENT_START_TOKENS = %i[class for fun if print return var while].freeze
+    STATEMENT_START_TOKENS = T.let(%i[class for fun if print return var while].freeze, T::Array[Symbol])
     MAX_ARGS = 255
 
+    sig { returns(T::Array[Error]) }
     attr_reader :errors
 
     # @param tokens [Array<Token>]
+    sig { params(tokens: T::Array[RubyLox::Token]).void }
     def initialize(tokens)
       @tokens = tokens
-      @current = 0
-      @errors = []
+      @current = T.let(0, Integer)
+      @errors = T.let([], T::Array[Error])
     end
 
+    sig { returns(T::Boolean) }
     def error?
       @errors.any?
     end
 
     # @return [RubyLox::Expressions::*] An object representing the parsed AST (Abstract Syntax Tree).
+    sig { returns(T.nilable(T::Array[T.untyped])) }
     def parse
       statements = []
       while !(is_at_end? || match(:eof))
@@ -98,6 +105,7 @@ module RubyLox
 
     ### Grammar methods ###
 
+    sig { returns(T.untyped) }
     def declaration
       return classDeclaration() if match(:class)
       return function("function") if match(:fun)
@@ -110,6 +118,7 @@ module RubyLox
       nil
     end
 
+    sig { returns(RubyLox::Statements::Class) }
     def classDeclaration
       name = consume(:identifier, "Expect class name.")
 
@@ -129,6 +138,7 @@ module RubyLox
       Statements::Class.new(name, superclass, methods)
     end
 
+    sig { params(kind: String).returns(RubyLox::Statements::Function) }
     def function(kind)
       name = consume(:identifier, "Expect #{kind} name.")
 
@@ -142,6 +152,7 @@ module RubyLox
       Statements::Function.new(name, params, body)
     end
 
+    sig { returns(T::Array[T.untyped]) }
     def parameters
       params = []
       return params if check(:right_paren)
@@ -158,6 +169,7 @@ module RubyLox
       params
     end
 
+    sig { returns(RubyLox::Statements::VarDecl) }
     def var_declaration
       name = consume(:identifier, "Expect variable name.")
 
@@ -170,6 +182,7 @@ module RubyLox
       Statements::VarDecl.new(name, initializer)
     end
 
+    sig { returns(T.any(Statements::While, Statements::If, Statements::Print, Statements::Return, Statements::Block, Statements::Expression)) }
     def statement
       return forStatement if match(:for)
       return ifStatement if match(:if)
@@ -181,6 +194,7 @@ module RubyLox
       expressionStatement
     end
 
+    sig { returns(T.any(RubyLox::Statements::While, RubyLox::Statements::Block)) }
     def forStatement
       consume(:left_paren, "Expect '(' after for.")
 
@@ -213,6 +227,7 @@ module RubyLox
       body
     end
 
+    sig { returns(RubyLox::Statements::If) }
     def ifStatement
       consume(:left_paren, "Expect '(' after if.")
       condition = expression
@@ -224,12 +239,14 @@ module RubyLox
       Statements::If.new(condition, thenBranch, elseBranch)
     end
 
+    sig { returns(RubyLox::Statements::Print) }
     def printStatement
       expr = expression
       consume(:semicolon, "Expect ';' after expression.")
       Statements::Print.new(expr)
     end
 
+    sig { returns(RubyLox::Statements::Return) }
     def returnStatement
       keyword = previous
       value = check(:semicolon) ? nil : expression
@@ -237,6 +254,7 @@ module RubyLox
       Statements::Return.new(keyword, value)
     end
 
+    sig { returns(RubyLox::Statements::While) }
     def whileStatement
       consume(:left_paren, "Expect '(' after while.")
       condition = expression
@@ -246,6 +264,7 @@ module RubyLox
       Statements::While.new(condition, body)
     end
 
+    sig { returns(RubyLox::Statements::Block) }
     def block
       statements = []
 
@@ -258,16 +277,19 @@ module RubyLox
       Statements::Block.new(statements)
     end
 
+    sig { returns(RubyLox::Statements::Expression) }
     def expressionStatement
       expr = expression
       consume(:semicolon, "Expect ';' after expression.")
       Statements::Expression.new(expr)
     end
 
+    sig { returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def expression
       assignment
     end
 
+    sig { returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def assignment
       expr = logic_or
 
@@ -287,6 +309,7 @@ module RubyLox
       expr
     end
 
+    sig { returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def logic_or
       expr = logic_and
 
@@ -300,6 +323,8 @@ module RubyLox
       expr
     end
 
+
+    sig { returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def logic_and
       expr = equality
 
@@ -313,22 +338,27 @@ module RubyLox
       expr
     end
 
+    sig { returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def equality
       binary_expression(method(:comparison), %i[bang_equal equal_equal])
     end
 
+    sig { returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def comparison
       binary_expression(method(:term), %i[greater greater_equal less less_equal])
     end
 
+    sig { returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def term
       binary_expression(method(:factor), %i[minus plus])
     end
 
+    sig { returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def factor
       binary_expression(method(:unary), %i[slash star])
     end
 
+    sig { params(lower_method: Method, operators: T::Array[Symbol]).returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def binary_expression(lower_method, operators)
       expr = lower_method.call
       while match(operators)
@@ -339,6 +369,7 @@ module RubyLox
       expr
     end
 
+    sig { returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def unary
       if match([:bang, :minus])
         operator = previous
@@ -349,6 +380,7 @@ module RubyLox
       end
     end
 
+    sig { returns(T.nilable(RubyLox::Expressions::SORBET_ANY)) }
     def call
       expr = primary
 
@@ -368,6 +400,7 @@ module RubyLox
       expr
     end
 
+    sig { returns(T::Array[RubyLox::Expressions::SORBET_ANY]) }
     def arguments
       args = []
 
@@ -385,6 +418,7 @@ module RubyLox
       args
     end
 
+    sig { returns(RubyLox::Expressions::SORBET_ANY) }
     def primary
       return Expressions::Literal.new(false) if match(:false)
       return Expressions::Literal.new(true) if match(:true)
@@ -420,7 +454,8 @@ module RubyLox
 
     ### Helper methods ###
 
-    # @param token_types [Array<Symbol>, Symbol] list of token types looking for
+    # @param token_types [Array<Symbol>] list of token types looking for
+    sig { params(token_types: T.any(Symbol, T::Array[Symbol])).returns(T::Boolean) }
     def match(token_types)
       if check(token_types)
         advance
@@ -430,30 +465,36 @@ module RubyLox
       end
     end
 
-    # @param token_types [Array<Symbol>, Symbol]
+    # @param token_types [Array<Symbol>]
+    sig { params(token_types: T.any(Symbol, T::Array[Symbol])).returns(T::Boolean) }
     def check(token_types)
       return false if is_at_end?
 
       Array(token_types).include?(peek.type)
     end
 
+    sig { returns(RubyLox::Token) }
     def peek
-      @tokens[@current]
+      T.must(@tokens[@current])
     end
 
+    sig { returns(T::Boolean) }
     def is_at_end?
       @current >= @tokens.size
     end
 
+    sig { returns(RubyLox::Token) }
     def advance
       @current += 1 unless is_at_end?
       previous
     end
 
+    sig { returns(RubyLox::Token) }
     def previous
-      @tokens[@current - 1]
+      T.must(@tokens[@current - 1])
     end
 
+    sig { params(token_type: Symbol, error_message: String).returns(T.nilable(RubyLox::Token)) }
     def consume(token_type, error_message)
       if check(token_type)
         advance
@@ -462,6 +503,7 @@ module RubyLox
       end
     end
 
+    sig { returns(NilClass) }
     def synchronize
       advance
       while !is_at_end?
