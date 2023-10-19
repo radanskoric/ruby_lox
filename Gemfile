@@ -10,7 +10,7 @@ gemspec
 gem "rake", "~> 13.0"
 
 group :test, :development do
-  gem "minitest", "~> 5.0"
+  gem "rspec", "~> 3.0"
 
   gem "rubocop", "~> 1.21"
 
