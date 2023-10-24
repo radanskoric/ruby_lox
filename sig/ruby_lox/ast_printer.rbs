@@ -1,0 +1,41 @@
+module RubyLox
+  class AstPrinter
+    def visitBinary: (RubyLox::Expressions::Binary binary) -> ::String
+
+    def visitCall: (RubyLox::Expressions::Call expr) -> ::String
+
+    def visitGet: (RubyLox::Expressions::Get expr) -> ::String
+
+    def visitGrouping: (RubyLox::Expressions::Grouping grouping) -> ::String
+
+    def visitLiteral: (RubyLox::Expressions::Literal literal) -> String
+
+    def visitVariable: (RubyLox::Expressions::Variable variable) -> String
+
+    def visitStmtExpression: (RubyLox::Statements::Expression stmt) -> ::String
+
+    def visitStmtPrint: (RubyLox::Statements::Print stmt) -> ::String
+
+    def visitStmtReturn: (RubyLox::Statements::Return stmt) -> ::String
+
+    def visitStmtVarDecl: (RubyLox::Statements::VarDecl stmt) -> ::String
+
+    def visitAssign: (RubyLox::Expressions::Assign expr) -> ::String
+
+    def visitStmtBlock: (RubyLox::Statements::Block stmtBlock) -> ::String
+
+    def visitStmtClass: (RubyLox::Statements::Class stmt) -> ::String
+
+    def visitStmtIf: (RubyLox::Statements::If stmt) -> ::String
+
+    def visitLogical: (RubyLox::Expressions::Logical logical) -> ::String
+
+    def visitSet: (RubyLox::Expressions::Set expr) -> ::String
+
+    def visitUnary: (RubyLox::Expressions::Unary unary) -> ::String
+
+    def visitStmtWhile: (RubyLox::Statements::While stmt) -> ::String
+
+    def visitStmtFunction: (RubyLox::Statements::Function stmt) -> ::String
+  end
+end

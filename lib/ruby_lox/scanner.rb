@@ -161,7 +161,7 @@ module RubyLox
     end
 
     def isAlphaNumeric(c)
-      ALPHA =~ c || DIGITS.include?(c)
+      ALPHA.match?(c) || DIGITS.include?(c)
     end
   end
 end

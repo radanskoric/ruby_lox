@@ -1,0 +1,129 @@
+module RubyLox
+  class Interpreter
+    NUMERIC_ONLY_BINARY_OPERATIONS: ::Array[:minus | :slash | :star | :greater | :greater_equal | :less | :less_equal]
+
+    class SemanticError < LoxRuntimeError
+      def initialize: (RubyLox token, String message) -> void
+
+      def to_s: () -> ::String
+    end
+
+    class ReturnValue < RuntimeError
+      attr_reader value: Object
+
+      def initialize: (Object value) -> void
+    end
+
+    class LoxFunction
+      # @param declaration [RubyLox::Statements::Function]
+      # @param closure [RubyLox::Environment]
+      # @param isInitializer [Boolean]
+      def initialize: (RubyLox::Statements::Function declaration, RubyLox::Environment closure, bool isInitializer) -> void
+
+      def bind: (RubyLox::Interpreter::LoxClass `instance`) -> RubyLox::Interpreter::LoxFunction
+
+      def call: (RubyLox::Interpreter interpreter, Array[RubyLox::Expressions::Literal] arguments) -> (Object | nil)
+
+      def arity: () -> Integer
+
+      def to_s: () -> ::String
+    end
+
+    class LoxClass
+      # @param name [String]
+      # @param superclass [LoxClass, nil]
+      # @param methods [Hash<String, LoxFunction>]
+      def initialize: (String name, (LoxClass | nil) superclass, Hash[String, LoxFunction] methods) -> void
+
+      def to_s: () -> String
+
+      def call: (Interpreter interpreter, Array[RubyLox::Expressions::Literal] arguments) -> untyped
+
+      def arity: () -> Integer
+
+      def findMethod: (String name) -> LoxFunction
+    end
+
+    class LoxInstance
+      # @param klass [LoxClass]
+      def initialize: (LoxClass klass) -> void
+
+      def to_s: () -> ::String
+
+      def get: (String name) -> Object
+
+      def set: (String name, Object value) -> Object
+    end
+
+    attr_reader environment: RubyLox::Environment
+
+    def initialize: (IO `out`) -> void
+
+    def interpret: (Array[RubyLox::Statements::all] program) -> nil
+
+    def visitBinary: (Expressions::Binary binary) -> void
+
+    def visitGrouping: (Expressions::Grouping grouping) -> void
+
+    def visitLiteral: (Expressions::Literal literal) -> untyped
+
+    def visitVariable: (Expressions::Variable variable) -> untyped
+
+    def visitStmtExpression: (Statements::Expression stmt) -> void
+
+    def visitStmtPrint: (Statements::Print stmt) -> void
+
+    def visitStmtReturn: (Statements::Return stmt) -> untyped
+
+    def visitStmtWhile: (Statements::While stmt) -> void
+
+    def visitStmtVarDecl: (Statements::VarDecl stmt) -> void
+
+    def visitAssign: (Expressions::Assign expr) -> void
+
+    def visitStmtBlock: (Statements::Block block) -> void
+
+    def visitStmtClass: (Statements::Class stmt) -> void
+
+    def visitStmtIf: (Statements::If stmt) -> (untyped | nil)
+
+    def visitLogical: (Expressions::Logical expr) -> void
+
+    def visitSet: (Expressions::Set expr) -> void
+
+    def visitSuper: (Expressions::Super expr) -> void
+
+    def visitThis: (Expressions::This expr) -> void
+
+    def visitUnary: (Expressions::Unary unary) -> void
+
+    def visitCall: (Expressions::Call expr) -> void
+
+    def visitGet: (Expressions::Get expr) -> void
+
+    def visitStmtFunction: (Statements::Function stmt) -> void
+
+    # Public so it would be accessible by function objects.
+    def executeBlock: (Statements::Block block, Environment environment) -> untyped
+
+    def resolve: (Expressions::all expr, Integer depth) -> void
+
+    private
+
+    def evaluate: (untyped expr) -> Object
+
+    def lookUpVariable: (String name, Expressions::all expr) -> (Object | nil | void)
+
+    def assignVariable: (String name, Expressions::all expr, Object value) -> void
+
+    def checkNumberOperand: (Token token, Object value) -> void
+
+    def checkNumberOperands: (Token token, Expressions::all left, Expressions::all right) -> void
+
+    def checkAddableOperands: (Token token, Expressions::all left, Expressions::all right) -> void
+
+    def checkValueIsCallable: (Token token, Object value) -> void
+
+    def checkArityMatches: (Token token, LoxFunction fn, Integer arguments) -> void
+  end
+end

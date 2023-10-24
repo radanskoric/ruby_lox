@@ -14,5 +14,8 @@ group :test, :development do
 
   gem "rubocop", "~> 1.21"
 
+  gem "rbs", "~> 3.0"
+  gem 'steep', '~> 1.5', '>= 1.5.3'
+
   gem "solargraph"
 end

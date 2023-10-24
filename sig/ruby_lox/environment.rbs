@@ -1,0 +1,21 @@
+module RubyLox
+  class Environment
+    attr_reader enclosing: Environment
+
+    def initialize: ((nil | Environment) enclosing) -> void
+
+    def define: (String name, Object value) -> Object
+
+    def get: (String name) -> (Object | nil)
+
+    def getAt: (Integer distance, String name) -> (Object | nil | void)
+
+    def assign: (String name, Object value) -> void
+
+    def assignAt: (Integer distance, String name, Object value) -> void
+
+    private
+
+    def fail_undefined: (String name) -> void
+  end
+end

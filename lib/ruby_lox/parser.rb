@@ -80,7 +80,7 @@ module RubyLox
       @errors.any?
     end
 
-    # @return [RubyLox::Expressions::*] An object representing the parsed AST (Abstract Syntax Tree).
+    # @return [Array<RubyLox::Statements::*>] An object representing the parsed AST (Abstract Syntax Tree).
     def parse
       statements = []
       while !(is_at_end? || match(:eof))

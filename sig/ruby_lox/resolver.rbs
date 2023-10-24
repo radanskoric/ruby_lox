@@ -1,0 +1,73 @@
+module RubyLox
+  # Implements an additional pass after parsing that resolves variable
+  # lookup. It enables static as opposed to dynamic lookup.
+  class Resolver
+    class Error < LoxCompileError
+    end
+
+    # In the book, jlox uses an enum. Here a hash will pretend it's an enum.
+    FUNCTION_TYPE: { none: 0, function: 1, initializer: 2, method: 3 }
+
+    CLASS_TYPE: { none: 0, class: 1, subclass: 2 }
+
+    def initialize: (Interpreter interpreter) -> void
+
+    def resolve: ((Statements::all | Array[Statements::all]) statement_or_statements) -> void
+
+    def visitBinary: (Expressions::Binary binary) -> void
+
+    def visitGrouping: (Expressions::Grouping grouping) -> void
+
+    def visitLiteral: (Expressions::Literal literal) -> void
+
+    def visitVariable: (Expressions::Variable variable) -> void
+
+    def visitStmtExpression: (Statements::Expression stmt) -> void
+
+    def visitStmtPrint: (Statements::Print stmt) -> void
+
+    def visitStmtReturn: (Statements::Return stmt) -> void
+
+    def visitStmtWhile: (Statements::While stmt) -> void
+
+    def visitStmtVarDecl: (Statements::VarDecl stmt) -> void
+
+    def visitAssign: (Expressions::Assign expr) -> void
+
+    def visitStmtBlock: (Statements::Block block) -> void
+
+    def visitStmtClass: (Statements::Class stmt) -> void
+
+    def visitStmtIf: (Statements::If stmt) -> void
+
+    def visitLogical: (Expressions::Logical expr) -> void
+
+    def visitSet: (Expressions::Set expr) -> void
+
+    def visitSuper: (Expressions::Super expr) -> void
+
+    def visitThis: (Expressions::This expr) -> void
+
+    def visitUnary: (Expressions::Unary unary) -> void
+
+    def visitCall: (Expressions::Call expr) -> void
+
+    def visitGet: (Expressions::Get expr) -> void
+
+    def visitStmtFunction: (Statements::Function stmt) -> void
+
+    private
+
+    def beginScope: () -> void
+
+    def endScope: () -> void
+
+    def declare: (Token name) -> void
+
+    def define: (Token name) -> void
+
+    def resolveLocal: (Expressions::all expr, Token name) -> void
+
+    def resolveFunction: (Statements::Function function, Symbol `type`) -> void
+  end
+end

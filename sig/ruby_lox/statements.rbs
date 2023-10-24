@@ -1,0 +1,32 @@
+module RubyLox
+  module Statements
+    class Expression
+    end
+
+    class Function
+    end
+
+    class Print
+    end
+
+    class Return
+    end
+
+    class VarDecl
+    end
+
+    class Block
+    end
+
+    class Class
+    end
+
+    class If
+    end
+
+    class While
+    end
+
+    type all = Expression | Function | Print | Return | VarDecl | Block | Class | If | While
+  end
+end

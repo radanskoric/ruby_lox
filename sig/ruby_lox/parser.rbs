@@ -1,0 +1,144 @@
+module RubyLox
+  # Parse the lox grammar, defines as:
+  #
+  # program        → declaration* EOF ;
+  # declaration    → classDecl
+  #                | funDecl
+  #                | varDecl
+  #                | statement ;
+  # classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
+  # funDecl        → "fun" function ;
+  # function       → IDENTIFIER "(" parameters? ")" block ;
+  # parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
+  # varDecl        → "var" IDENTIFIER ("=" expression)? ";" ;
+  # statement      → exprStmt
+  #                | forStmt
+  #                | ifStmt
+  #                | printStmt
+  #                | returnStmt
+  #                | whileStmt
+  #                | block ;
+  # exprStmt       → expression ";" ;
+  # forStmt        → "for" "(" ( varDecl | exprStmt | ";" )\
+  #                  expression? ";"
+  #                  expression? ")" statement;
+  # printStmt      → "print" expression ";" ;
+  # returnStmt     → "return" expression? ";" ;
+  # whileStmt      → "while" "(" expression ")" statement;
+  # block          → "{" declaration* "}" ;
+  # expression     → assignment ;
+  # ifStmt         → "if" "(" expression ")" statement
+  #                  ( "else" statement )? ;
+  # assignment     → ( call "." )? IDENTIFIER "=" assignment
+  #                | logic_or ;
+  # logic_or       → logic_and ( "or" logic_and )* ;
+  # logic_and      → equality ( "and" equality )* ;
+  # equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+  # comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+  # term           → factor ( ( "-" | "+" ) factor )* ;
+  # factor         → unary ( ( "/" | "*" ) unary )* ;
+  # unary          → ( "!" | "-" ) unary
+  #                | call ;
+  # call           → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
+  # primary        → NUMBER | STRING | "true" | "false" | "nil" | "this"
+  #                | "(" expression ")" | IDENTIFIER
+  #                | "super" "." IDENTIFIER ;
+  # arguments      → expression ( "," expression )* ;
+  class Parser
+    class Error < LoxCompileError
+      def initialize: (Token token, String message) -> void
+
+      def to_s: () -> ::String
+    end
+
+    STATEMENT_START_TOKENS: ::Array[:class | :for | :fun | :if | :print | :return | :var | :while]
+
+    MAX_ARGS: 255
+
+    attr_reader errors: Array[Parser::Error]
+
+    # @param tokens [Array<Token>]
+    def initialize: (Array[Token] tokens) -> void
+
+    def error?: () -> bool
+
+    # @return [Array<RubyLox::Statements::*>] An object representing the parsed AST (Abstract Syntax Tree).
+    def parse: () -> (Array[Statements::all] | nil)
+
+    private
+
+    def declaration: () -> (Statements::all | nil)
+
+    def classDeclaration: () -> Statements::Class
+
+    def function: (("function" | "method") kind) -> Statements::Function
+
+    def parameters: () -> Array[Token]
+
+    def var_declaration: () -> Statements::VarDecl
+
+    def statement: () -> (Statements::While | Statements::If | Statements::Print | Statements::Return | Statements::While | Statements::Block | Statements::Expression)
+
+    def forStatement: () -> (Statements::While | Statements::Block)
+
+    def ifStatement: () -> Statements::If
+
+    def printStatement: () -> Statements::Print
+
+    def returnStatement: () -> Statements::Return
+
+    def whileStatement: () -> Statements::While
+
+    def block: () -> Statements::Block
+
+    def expressionStatement: () -> Statements::Expression
+
+    def expression: () -> Expressions::all
+
+    type primary_expressions = (Expressions::Literal | Expressions::This | Expressions::Variable | Expressions::Grouping | Expressions::Super)
+    type unary_expressions = (primary_expressions | Expressions::Call | Expressions::Get | Expressions::Unary)
+    type binary_expressions = (unary_expressions | Expressions::Binary)
+
+    def assignment: () -> (binary_expressions | Expressions::Logical | Expressions::Assign | Expressions::Set)
+
+    def logic_or: () -> (binary_expressions | Expressions::Logical)
+
+    def logic_and: () -> (binary_expressions | Expressions::Logical)
+
+    def equality: () -> binary_expressions
+
+    def comparison: () -> binary_expressions
+
+    def term: () -> binary_expressions
+
+    def factor: () -> binary_expressions
+
+    def binary_expression: (Method lower_method, Array[:symbol] operators) -> binary_expressions
+
+    def unary: () -> unary_expressions
+
+    def call: () -> (primary_expressions | Expressions::Call | Expressions::Get)
+
+    def arguments: () -> Array[Expressions::all]
+
+    def primary: () -> (primary_expressions)
+
+    # @param token_types [Array<Symbol>] list of token types looking for
+    def match: (*Symbol token_types) -> bool
+
+    # @param token_type [Symbol]
+    def check: (*Symbol token_types) -> bool
+
+    def peek: () -> Token
+
+    def is_at_end?: () -> bool
+
+    def advance: () -> Token
+
+    def previous: () -> Token
+
+    def consume: (Symbol token_type, String error_message) -> untyped
+
+    def synchronize: () -> void
+  end
+end

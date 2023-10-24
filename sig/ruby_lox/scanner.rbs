@@ -1,0 +1,53 @@
+module RubyLox
+  class Scanner
+    DIGITS: ::Range[::String]
+
+    ALPHA: ::Regexp
+
+    RESERVED_WORDS: ::Array["and" | "class" | "else" | "false" | "fun" | "for" | "if" | "nil" | "or" | "print" | "return" | "super" | "this" | "true" | "var" | "while"]
+
+    class LexicalError
+      def initialize: (String character, Integer line) -> void
+
+      def to_s: () -> ::String
+    end
+
+    class UnclosedString < LexicalError
+      def to_s: () -> ::String
+    end
+
+    attr_reader errors: Array[LexicalError]
+
+    # @param source [String]
+    def initialize: (String source) -> void
+
+    def error?: () -> bool
+
+    # @return [Array<RubyLox::Token>]
+    def scan_tokens: () -> Array[Token]
+
+    private
+
+    def end?: () -> bool
+
+    def scan_token: () -> void
+
+    def advance: () -> String
+
+    def match: (String c) -> (false | String)
+
+    def peek: () -> String
+
+    def peek_next: () -> String
+
+    def add_token: (String `type`, ?(String | Float)? literal) -> void
+
+    def scan_string: () -> void
+
+    def scan_number: () -> void
+
+    def scan_identifier: () -> void
+
+    def isAlphaNumeric: (String c) -> bool
+  end
+end

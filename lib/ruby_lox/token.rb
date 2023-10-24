@@ -23,7 +23,7 @@ module RubyLox
 
     # @param type [Symbol] Type of token
     # @param lexeme [String] The actual snippet of course matching the token
-    # @param literal [Symbol, String, Number] the value of a literal for literal tokens.
+    # @param literal [String, Numeric] the value of a literal for literal tokens.
     # @param line [Integer] Source line on which the token appears
     def initialize(type, lexeme, literal, line)
       raise ArgumentError, "Unknown token type: #{type}" unless TYPES.include?(type)

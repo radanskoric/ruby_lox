@@ -1,0 +1,41 @@
+module RubyLox
+  module Expressions
+    class Binary
+    end
+
+    class Call
+    end
+
+    class Get
+    end
+
+    class Grouping
+    end
+
+    class Literal
+    end
+
+    class Logical
+    end
+
+    class Set
+    end
+
+    class Super
+    end
+
+    class This
+    end
+
+    class Unary
+    end
+
+    class Variable
+    end
+
+    class Assign
+    end
+
+    type all = Binary | Call | Get | Grouping | Literal | Logical | Set | Super | This | Unary | Variable | Assign
+  end
+end
