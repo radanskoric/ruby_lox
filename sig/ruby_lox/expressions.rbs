@@ -1,39 +1,87 @@
 module RubyLox
   module Expressions
     class Binary
+      attr_reader left: Parser::binary_expressions
+      attr_reader operator: Token
+      attr_reader right: Parser::binary_expressions
+      def initialize: (Parser::binary_expressions left, Token operator, Parser::binary_expressions right) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Call
+      attr_reader callee: Parser::primary_expressions
+      attr_reader paren: Token
+      attr_reader arguments: Array[Expressions::all]
+      def initialize: (Parser::primary_expressions callee, Token paren, Array[Expressions::all] arguments) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Get
+      attr_reader object: Parser::primary_expressions
+      attr_reader name: Token
+      def initialize: (Parser::primary_expressions object, Token name) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Grouping
+      attr_reader expression: Expressions::all
+      def initialize: (Expressions::all expression) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Literal
+      attr_reader value: (true | false | nil | String | Numeric)
+      def initialize: ((true | false | nil | String | Numeric) value) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Logical
+      attr_reader left: Parser::logic_operators
+      attr_reader operator: Token
+      attr_reader right: Parser::logic_operators
+      def initialize: (Parser::logic_operators left, Token operator, Parser::logic_operators right) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Set
+      attr_reader object: Parser::primary_expressions
+      attr_reader name: Token
+      attr_reader value: Parser::value_type
+      def initialize: (Parser::primary_expressions object, Token name, Parser::value_type value) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Super
+      attr_reader keyword: Token
+      attr_reader method: Token
+      def initialize: (Token keyword, Token method) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class This
+      attr_reader keyword: Token
+      def initialize: (Token keyword) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Unary
+      attr_reader operator: Token
+      attr_reader right: Parser::unary_expressions
+      def initialize: (Token operator, Parser::unary_expressions right) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Variable
+      attr_reader name: Token
+      def initialize: (Token name) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Assign
+      attr_reader name: Token
+      attr_reader value: Parser::value_type
+      def initialize: (Token name, Parser::value_type value) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     type all = Binary | Call | Get | Grouping | Literal | Logical | Set | Super | This | Unary | Variable | Assign

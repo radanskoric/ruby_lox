@@ -40,7 +40,7 @@ module RubyLox
 
     def peek_next: () -> String
 
-    def add_token: (String `type`, ?(String | Float)? literal) -> void
+    def add_token: (Token::token_type `type`, ?(String | Float)? literal) -> void
 
     def scan_string: () -> void
 

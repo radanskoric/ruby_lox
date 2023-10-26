@@ -204,7 +204,7 @@ module RubyLox
       if increment
         body = Statements::Block.new([body, Statements::Expression.new(increment)])
       end
-      condition ||= expr::Literal.new(true)
+      condition ||= Expressions::Literal.new(true)
       body = Statements::While.new(condition, body)
       if initializer
         body = Statements::Block.new([initializer, body])

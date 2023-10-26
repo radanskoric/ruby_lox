@@ -25,7 +25,7 @@ module RubyLox
     end
 
     def visitVariable(variable)
-      variable.name || "undefined"
+      variable.name.to_s || "undefined"
     end
 
     def visitStmtExpression(stmt)

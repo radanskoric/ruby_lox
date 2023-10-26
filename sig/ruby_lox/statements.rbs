@@ -1,30 +1,66 @@
 module RubyLox
   module Statements
     class Expression
+      attr_reader expression: Expressions::all
+      def initialize: (Expressions::all expression) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Function
+      attr_reader name: Token
+      attr_reader params: Array[Token]
+      attr_reader body: Statements::Block
+      def initialize: (Token name, Array[Token] params, Statements::Block body) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Print
+      attr_reader expression: Expressions::all
+      def initialize: (Expressions::all expression) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Return
+      attr_reader keyword: Token
+      attr_reader value: Expressions::all?
+      def initialize: (Token keyword, Expressions::all? value) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class VarDecl
+      attr_reader name: Token
+      attr_reader initializer: Expressions::all?
+      def initialize: (Token name, Expressions::all? initializer) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Block
+      attr_reader statements: Array[Statements::all]
+      def initialize: (Array[Statements::all] statements) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class Class
+      attr_reader name: Token
+      attr_reader superclass: Expressions::Variable?
+      attr_reader methods: Array[Statements::Function]
+      def initialize: (Token name, Expressions::Variable? superclass, Array[Statements::Function] methods) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class If
+      attr_reader condition: Expressions::all
+      attr_reader thenBranch: Statements::all
+      attr_reader elseBranch: Statements::all?
+      def initialize: (Expressions::all condition, Statements::all thenBranch, Statements::all? elseBranch) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     class While
+      attr_reader condition: Expressions::all
+      attr_reader body: Statements::all
+      def initialize: (Expressions::all condition, Statements::all body) -> void
+      def accept: (untyped visitor) -> untyped
     end
 
     type all = Expression | Function | Print | Return | VarDecl | Block | Class | If | While

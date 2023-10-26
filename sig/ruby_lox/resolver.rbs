@@ -12,7 +12,7 @@ module RubyLox
 
     def initialize: (Interpreter interpreter) -> void
 
-    def resolve: ((Statements::all | Array[Statements::all]) statement_or_statements) -> void
+    def resolve: ((Statements::all | Expressions::all | Array[Statements::all | Expressions::all]) statement_or_statements) -> void
 
     def visitBinary: (Expressions::Binary binary) -> void
 
@@ -68,6 +68,6 @@ module RubyLox
 
     def resolveLocal: (Expressions::all expr, Token name) -> void
 
-    def resolveFunction: (Statements::Function function, Symbol `type`) -> void
+    def resolveFunction: (Statements::Function function, Integer `type`) -> void
   end
 end

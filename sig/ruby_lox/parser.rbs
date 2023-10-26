@@ -51,7 +51,7 @@ module RubyLox
       def to_s: () -> ::String
     end
 
-    STATEMENT_START_TOKENS: ::Array[:class | :for | :fun | :if | :print | :return | :var | :while]
+    STATEMENT_START_TOKENS: ::Array[Token::token_type]
 
     MAX_ARGS: 255
 
@@ -98,12 +98,14 @@ module RubyLox
     type primary_expressions = (Expressions::Literal | Expressions::This | Expressions::Variable | Expressions::Grouping | Expressions::Super)
     type unary_expressions = (primary_expressions | Expressions::Call | Expressions::Get | Expressions::Unary)
     type binary_expressions = (unary_expressions | Expressions::Binary)
+    type logic_operators = (binary_expressions | Expressions::Logical)
+    type value_type = (logic_operators | Expressions::Assign | Expressions::Set)
 
-    def assignment: () -> (binary_expressions | Expressions::Logical | Expressions::Assign | Expressions::Set)
+    def assignment: () -> value_type
 
-    def logic_or: () -> (binary_expressions | Expressions::Logical)
+    def logic_or: () -> logic_operators
 
-    def logic_and: () -> (binary_expressions | Expressions::Logical)
+    def logic_and: () -> logic_operators
 
     def equality: () -> binary_expressions
 
@@ -113,7 +115,7 @@ module RubyLox
 
     def factor: () -> binary_expressions
 
-    def binary_expression: (Method lower_method, Array[:symbol] operators) -> binary_expressions
+    def binary_expression: (Method lower_method, Array[Symbol] operators) -> binary_expressions
 
     def unary: () -> unary_expressions
 

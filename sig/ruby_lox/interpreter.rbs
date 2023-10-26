@@ -1,17 +1,17 @@
 module RubyLox
   class Interpreter
-    NUMERIC_ONLY_BINARY_OPERATIONS: ::Array[:minus | :slash | :star | :greater | :greater_equal | :less | :less_equal]
+    NUMERIC_ONLY_BINARY_OPERATIONS: ::Array[Token::token_type]
 
     class SemanticError < LoxRuntimeError
-      def initialize: (RubyLox token, String message) -> void
+      def initialize: (Token token, String message) -> void
 
       def to_s: () -> ::String
     end
 
     class ReturnValue < RuntimeError
-      attr_reader value: Object
+      attr_reader value: Object?
 
-      def initialize: (Object value) -> void
+      def initialize: (Object? value) -> void
     end
 
     class LoxFunction
@@ -20,7 +20,7 @@ module RubyLox
       # @param isInitializer [Boolean]
       def initialize: (RubyLox::Statements::Function declaration, RubyLox::Environment closure, bool isInitializer) -> void
 
-      def bind: (RubyLox::Interpreter::LoxClass `instance`) -> RubyLox::Interpreter::LoxFunction
+      def bind: ((String | Numeric | LoxClass | LoxInstance | nil) `instance`) -> RubyLox::Interpreter::LoxFunction
 
       def call: (RubyLox::Interpreter interpreter, Array[RubyLox::Expressions::Literal] arguments) -> (Object | nil)
 
@@ -50,14 +50,14 @@ module RubyLox
 
       def to_s: () -> ::String
 
-      def get: (String name) -> Object
+      def get: (Token name) -> Object
 
-      def set: (String name, Object value) -> Object
+      def set: (Token name, Object value) -> Object
     end
 
     attr_reader environment: RubyLox::Environment
 
-    def initialize: (IO `out`) -> void
+    def initialize: (?IO `out`) -> void
 
     def interpret: (Array[RubyLox::Statements::all] program) -> nil
 
@@ -110,11 +110,11 @@ module RubyLox
 
     private
 
-    def evaluate: (untyped expr) -> Object
+    def evaluate: (untyped expr) -> untyped
 
-    def lookUpVariable: (String name, Expressions::all expr) -> (Object | nil | void)
+    def lookUpVariable: (Token name, Expressions::all expr) -> (Object | nil | void)
 
-    def assignVariable: (String name, Expressions::all expr, Object value) -> void
+    def assignVariable: (Token name, Expressions::all expr, Object value) -> void
 
     def checkNumberOperand: (Token token, Object value) -> void
 
@@ -124,6 +124,6 @@ module RubyLox
 
     def checkValueIsCallable: (Token token, Object value) -> void
 
-    def checkArityMatches: (Token token, LoxFunction fn, Integer arguments) -> void
+    def checkArityMatches: (Token token, LoxFunction fn, Array[untyped] arguments) -> void
   end
 end

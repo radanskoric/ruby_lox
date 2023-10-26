@@ -295,6 +295,8 @@ module RubyLox
       distance = @locals[expr]
 
       superclass = @environment.getAt(distance, "super")
+      fail "Expected a LoxClass for super class but got #{superclass}" unless superclass.is_a?(LoxClass)
+
       object = @environment.getAt(distance - 1, "this")
       method = superclass.findMethod(expr.method.lexeme)
 

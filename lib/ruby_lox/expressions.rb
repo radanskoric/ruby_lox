@@ -19,7 +19,9 @@ module RubyLox
 
     [Binary, Call, Get, Grouping, Literal, Logical, Set,
      Super, This, Unary, Variable, Assign].each do |expression_class|
-      klass_name = expression_class.name.split(":").last
+      # Here I'm adding the & operator because Steep is complaining about call split on potentially
+      # nil. Of course, the list of classes that will be evaluated is static so I know this won't happen.
+      klass_name = expression_class.name&.split(":")&.last
       expression_class.class_eval <<~RUBY
         def accept(visitor)
           visitor.visit#{klass_name}(self)

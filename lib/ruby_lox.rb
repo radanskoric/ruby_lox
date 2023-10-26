@@ -25,7 +25,7 @@ module RubyLox
 
       parser = RubyLox::Parser.new(tokens)
       ast = parser.parse
-      if parser.error?
+      if parser.error? || ast.nil?
         puts "There were syntax errors:"
         parser.errors.each { |err| puts "  #{err}" }
         return
