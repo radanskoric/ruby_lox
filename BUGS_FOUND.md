@@ -8,7 +8,7 @@ With both I also tracked how many new bugs were uncovered. When I was done I won
 
 ## The bugs
 
-### Line coverage
+### Line coverage to 100%
 
 I kept track of all the bugs that were found by getting to 100% test coverage (regular [simplecov](https://github.com/simplecov-ruby/simplecov) metric, i.e. line coverage):
 
@@ -20,3 +20,8 @@ I kept track of all the bugs that were found by getting to 100% test coverage (r
 
 - *Not a bug* but while trying to cover with specs the error handling code in `Parser#parse` method I realised it will never run as it's covered by the more advanced error handling of same errors one method call down. This error handling was leftover from before the more advanced error handling with synchronization was added. So I just deleted the code.
 
+### Branch coverage to 100%
+
+- `RubyLox::Parser::ForStatement` had a place where it was referencing `expr::Literal` instead of `Expressions::Literal`. This was a bug caused by copy pasting form a place where `expr` was defined.
+
+- *Not a bug* but the `Intepreter` had special code that would catch a return value which was redundant because we now have code in the `Resolver` that will raise a compile error if it encounters a return value in an initializer. So the code that is changing the return value of initializer is unreachable and I removed.

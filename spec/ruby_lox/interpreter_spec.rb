@@ -70,6 +70,14 @@ RSpec.describe RubyLox::Interpreter do
       end
     end
 
+    context "when declaring a variable without an initializer and assigning value later" do
+      let(:source) { "var a; a = 42; print a;" }
+
+      it "prints the value" do
+        expect(output).to eq "42"
+      end
+    end
+
     context "with global variables assignment" do
       let(:source) do
         <<~CODE
@@ -154,6 +162,23 @@ RSpec.describe RubyLox::Interpreter do
 
       it "evaluates it in correct order" do
         expect(output).to eq "42"
+      end
+    end
+
+    context "when first argument of and logical operator is false" do
+      let(:source) do
+        <<~CODE
+          fun isAnswer(num) {
+            print num;
+            return num == 42;
+          }
+
+          isAnswer(23) and isAnswer(42);
+        CODE
+      end
+
+      it "shortcircuts the evaluation" do
+        expect(output).to eq "23"
       end
     end
 
@@ -361,6 +386,23 @@ RSpec.describe RubyLox::Interpreter do
       it "uses it to initialize the object" do
         expect(output).to eq "Hello good friend John!"
       end
+
+      context "when the init method is called directly" do
+        let(:source) do
+          super() + <<~CODE
+            print warmGreeting.init("Sup");
+            warmGreeting.greet("Jane");
+          CODE
+        end
+
+        it "re-inits the object and returns it" do
+          expect(output).to eq <<~OUTPUT.chop
+            Hello good friend John!
+            Greeting instance
+            Sup Jane!
+          OUTPUT
+        end
+      end
     end
 
     context "when calling super from a method declared on parent class" do
@@ -542,6 +584,27 @@ RSpec.describe RubyLox::Interpreter do
 
       it "raises a lox error" do
         expect { result }.to raise_error(RubyLox::Resolver::Error, /Can't use 'super' in a class with no superclass/)
+      end
+    end
+
+    context "when calling super but there's no super method" do
+      let(:source) do
+        <<~CODE
+          class A {
+          }
+
+          class B < A {
+            test() {
+              super.test();
+            }
+          }
+
+          B().test();
+        CODE
+      end
+
+      it "raises a semantic error" do
+        expect { result }.to raise_error(RubyLox::Interpreter::SemanticError, /Undefined property test/)
       end
     end
   end

@@ -97,7 +97,7 @@ module RubyLox
     end
 
     def visitStmtFunction(stmt)
-      "(fun #{stmt.name.lexeme}(#{stmt.params.map(&:literal).join(",")}) #{stmt.body.accept(self)}"
+      "(fun #{stmt.name.lexeme}(#{stmt.params.map(&:literal).join(",")}) #{stmt.body.accept(self)})"
     end
   end
 end

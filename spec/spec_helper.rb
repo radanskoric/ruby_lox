@@ -13,7 +13,9 @@
 # it.
 
 require "simplecov"
-SimpleCov.start
+SimpleCov.start do
+  enable_coverage :branch
+end
 
 root_dir = File.expand_path("..", __dir__)
 $LOAD_PATH.unshift(root_dir) unless $LOAD_PATH.include?(root_dir)

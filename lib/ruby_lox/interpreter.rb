@@ -54,8 +54,6 @@ module RubyLox
 
         nil
       rescue ReturnValue => e
-        return @closure.getAt(0, "this") if @isInitializer
-
         e.value
       end
 

@@ -344,6 +344,21 @@ RSpec.describe RubyLox::Parser do
     end
   end
 
+  context "with a nil value" do
+    let(:tokens) do
+      [
+        token.new(:nil, "nil", nil, 1),
+        token.new(:semicolon, ";", nil, 1),
+      ]
+    end
+
+    it "returns a nil literal" do
+      expect(ast).to eq [stmt::Expression.new(
+        expr::Literal.new(nil)
+      )]
+    end
+  end
+
   context "with a block" do
     let(:tokens) do
       [
@@ -515,14 +530,14 @@ RSpec.describe RubyLox::Parser do
     end
   end
 
-  context "with a for loop without an initializer or increment" do
-    let(:source) { "for (; check();) print \"still here\";" }
+  context "with a for loop without any of the elements" do
+    let(:source) { "for (;;) print \"still here\";" }
 
     let(:expected) do
       RubyLox::Parser.new(
         RubyLox::Scanner.new(
           <<~CODE
-            while (check()) print "still here";
+            while (true) print "still here";
           CODE
         ).scan_tokens
       ).parse
@@ -702,6 +717,27 @@ RSpec.describe RubyLox::Parser do
     it "produces a class declaration" do
       expect(parser.errors).to eq []
       expect(ast).to eq expected
+    end
+  end
+
+  context "with broken input followed by a valid statement" do
+    let(:source) do
+      <<~CODE
+        class Foo }}
+        print 42;
+      CODE
+    end
+
+    it "logs an error" do
+      expect(parser.errors.map(&:to_s)).to eq [
+        "Error on line 1: Expect '{' before class body.",
+      ]
+    end
+
+    it "recovers and synchronizes to the statement" do
+      expect(ast).to eq [
+        stmt::Print.new(expr::Literal.new(42))
+      ]
     end
   end
 end

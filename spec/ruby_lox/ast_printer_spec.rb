@@ -45,7 +45,7 @@ RSpec.describe RubyLox::AstPrinter do
 
       it "prints the ast in prefix notation" do
         expect(printer.print(ast)).to eq <<~PREFIX.chop
-          (fun greet(name) { (print (+ (+ Hi there,  identifier name name) !)) }
+          (fun greet(name) { (print (+ (+ Hi there,  identifier name name) !)) })
           (var new_user Bob)
           (expr (call identifier greet greet (identifier new_user new_user)))
         PREFIX
@@ -74,7 +74,7 @@ RSpec.describe RubyLox::AstPrinter do
 
       it "prints the ast in prefix notation" do
         expect(printer.print(ast)).to eq <<~PREFIX.chop
-          (fun check() { (return true) }
+          (fun check() { (return true) })
           (var a)
           (if (call identifier check check ()) { (expr (= identifier a a 5.0)) } { (expr (= identifier a a 10.0)) })
           (if (and (> identifier a a 6.0) (< identifier a a 20.0)) { (print OK!) })
@@ -109,8 +109,8 @@ RSpec.describe RubyLox::AstPrinter do
 
       it "prints the ast in prefix notation" do
         expect(printer.print(ast)).to eq <<~PREFIX.chop
-          (class Person (fun init(name) { (expr (set this name identifier name name)) },(fun greet() { (print (+ (+ Hi there,  (get this name)) !)) })
-          (class Customer (fun greet() { (expr (call super.greet ())),(print What are you looking for today?) })
+          (class Person (fun init(name) { (expr (set this name identifier name name)) }),(fun greet() { (print (+ (+ Hi there,  (get this name)) !)) }))
+          (class Customer (fun greet() { (expr (call super.greet ())),(print What are you looking for today?) }))
           (expr (call (get identifier new_customer new_customer greet) ()))
         PREFIX
       end
@@ -128,6 +128,22 @@ RSpec.describe RubyLox::AstPrinter do
       it "prints the ast in prefix notation" do
         expect(printer.print(ast)).to eq <<~PREFIX.chop
           (while true { (print Still true) })
+        PREFIX
+      end
+    end
+
+    context "when returning without a value" do
+      let(:source) do
+        <<~CODE
+          fun test() {
+            return;
+          }
+        CODE
+      end
+
+      it "prints the ast in prefix notation" do
+        expect(printer.print(ast)).to eq <<~PREFIX.chop
+          (fun test() { (return ) })
         PREFIX
       end
     end
