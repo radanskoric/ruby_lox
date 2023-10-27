@@ -515,6 +515,47 @@ RSpec.describe RubyLox::Parser do
     end
   end
 
+  context "with a for loop without an initializer or increment" do
+    let(:source) { "for (; check();) print \"still here\";" }
+
+    let(:expected) do
+      RubyLox::Parser.new(
+        RubyLox::Scanner.new(
+          <<~CODE
+            while (check()) print "still here";
+          CODE
+        ).scan_tokens
+      ).parse
+    end
+
+    it "desugars it to a while loop" do
+      expect(parser.errors).to eq []
+      expect(ast).to eq expected
+    end
+  end
+
+  context "with a for loop with an expression for initializer" do
+    let(:source) { "for (startWork(); check();) print \"still working\";" }
+
+    let(:expected) do
+      RubyLox::Parser.new(
+        RubyLox::Scanner.new(
+          <<~CODE
+            {
+              startWork();
+              while (check()) print "still working";
+            }
+          CODE
+        ).scan_tokens
+      ).parse
+    end
+
+    it "desugars it to a while loop" do
+      expect(parser.errors).to eq []
+      expect(ast).to eq expected
+    end
+  end
+
   context "with a function call" do
     let(:source) { "average(1, 2);" }
 
@@ -544,6 +585,22 @@ RSpec.describe RubyLox::Parser do
             []
           )
         )]
+      end
+    end
+
+    context "with more than 255 parameters" do
+      let(:source) do
+        <<~CODE
+          fun average(#{(256.times.map { "a#{_1}" }.join("\n,"))}) {
+            return a1;
+          }
+        CODE
+      end
+
+      it "logs an error" do
+        expect(parser.errors.map(&:to_s)).to eq [
+          "Error on line 256: Can't have more than 255 parameters.",
+        ]
       end
     end
 

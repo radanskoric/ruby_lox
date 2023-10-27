@@ -12,6 +12,9 @@
 # the additional setup, and require it from the spec files that actually need
 # it.
 
+require "simplecov"
+SimpleCov.start
+
 root_dir = File.expand_path("..", __dir__)
 $LOAD_PATH.unshift(root_dir) unless $LOAD_PATH.include?(root_dir)
 

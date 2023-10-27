@@ -11,6 +11,7 @@ gem "rake", "~> 13.0"
 
 group :test, :development do
   gem "rspec", "~> 3.0"
+  gem "simplecov", require: false
 
   gem "rubocop", "~> 1.21"
 

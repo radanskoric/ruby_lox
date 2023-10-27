@@ -29,6 +29,11 @@ RSpec.describe RubyLox::Interpreter do
       it { is_expected.to eq "-5617.41" }
     end
 
+    context "with a calculation using division" do
+      let(:source) { "print 42 / 7;" }
+      it { is_expected.to eq "6" }
+    end
+
     context "with a calculation returning integer" do
       let(:source) { "print 4 + 10;" }
       it "prints just the whole number" do
@@ -39,6 +44,11 @@ RSpec.describe RubyLox::Interpreter do
     context "with a logical expression" do
       let(:source) { "print !(42 > 13);" }
       it { is_expected.to eq "false" }
+    end
+
+    context "with a complex logical expression" do
+      let(:source) { "print (13 >= 13) and (100 < 101) and (1 <= 1) and (1 != 0);" }
+      it { is_expected.to eq "true" }
     end
 
     context "with a string concatenation" do
@@ -215,6 +225,31 @@ RSpec.describe RubyLox::Interpreter do
       end
     end
 
+    context "when trying to print a function" do
+      let(:source) do
+        <<~CODE
+          fun add5(a) { return a + 5; }
+          print add5;
+        CODE
+      end
+
+      it "works" do
+        expect(output).to eq "<fn add5>"
+      end
+    end
+
+    context "when trying to print a built in function" do
+      let(:source) do
+        <<~CODE
+          print clock;
+        CODE
+      end
+
+      it "works" do
+        expect(output).to eq "<native fn clock>"
+      end
+    end
+
     context "with a variable name rebound after closure creation" do
       let(:source) do
         <<~CODE
@@ -246,6 +281,19 @@ RSpec.describe RubyLox::Interpreter do
 
       it "works" do
         expect(output).to eq "DevonshireCream"
+      end
+    end
+
+    context "when printing a class instance" do
+      let(:source) do
+        <<~CODE
+          class DevonshireCream {}
+          print DevonshireCream();
+        CODE
+      end
+
+      it "works" do
+        expect(output).to eq "DevonshireCream instance"
       end
     end
 
@@ -387,6 +435,22 @@ RSpec.describe RubyLox::Interpreter do
       end
     end
 
+    context "when trying to call a method on a non instance of a class" do
+      let(:source) { "clock.tomorrow();" }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(described_class::SemanticError, /Only instances have properties/)
+      end
+    end
+
+    context "when trying to set a value on a non instance of a class" do
+      let(:source) { "clock.offset = 1;" }
+
+      it "raises a lox error" do
+        expect { result }.to raise_error(described_class::SemanticError, /Only instances have fields/)
+      end
+    end
+
     context "when redeclaring a variable in local scope" do
       let(:source) do
         <<~CODE
@@ -399,6 +463,20 @@ RSpec.describe RubyLox::Interpreter do
 
       it "raises a lox error" do
         expect { result }.to raise_error(RubyLox::Resolver::Error, /Already a variable with this name in this scope/)
+      end
+    end
+
+    context "when using the variable in its own initializer" do
+      let(:source) do
+        <<~CODE
+          {
+            var a = a;
+          }
+        CODE
+      end
+
+      it "raises a lox compile error" do
+        expect { result }.to raise_error(RubyLox::LoxCompileError, /read local variable in its own initializer/)
       end
     end
 

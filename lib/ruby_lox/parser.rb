@@ -88,9 +88,6 @@ module RubyLox
       end
 
       statements.compact
-    rescue Error => e
-      @errors << e
-      nil
     end
 
     private
@@ -194,7 +191,7 @@ module RubyLox
       condition = check(:semicolon) ? nil : expression
       consume(:semicolon, "Expect ';' after for loop condition.")
 
-      increment = check(:semicolon) ? nil : expression
+      increment = check(:right_paren) ? nil : expression
       consume(:right_paren, "Expect ')' after for clauses.")
 
       body = statement

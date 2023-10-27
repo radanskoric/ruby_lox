@@ -54,7 +54,7 @@ module RubyLox
 
     def visitVariable(variable)
       if @scopes.any? && @scopes.last[variable.name.lexeme] == false
-        fail LoxCompilerError.new(variable.name, "Can't read local variable in its own initializer.")
+        fail LoxCompileError.new(variable.name, "Can't read local variable in its own initializer.")
       end
 
       resolveLocal(variable, variable.name)

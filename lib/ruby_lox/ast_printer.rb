@@ -4,6 +4,10 @@ require_relative "token"
 
 module RubyLox
   class AstPrinter
+    def print(program)
+      program.map { |stmt| stmt.accept(self) }.join("\n")
+    end
+
     def visitBinary(binary)
       "(#{binary.operator.lexeme} #{binary.left.accept(self)} #{binary.right.accept(self)})"
     end
@@ -74,6 +78,14 @@ module RubyLox
 
     def visitSet(expr)
       "(set #{expr.object.accept(self)} #{expr.name.lexeme} #{expr.value.accept(self)})"
+    end
+
+    def visitSuper(expr)
+      "super.#{expr.method.lexeme}"
+    end
+
+    def visitThis(_expr)
+      "this"
     end
 
     def visitUnary(unary)
